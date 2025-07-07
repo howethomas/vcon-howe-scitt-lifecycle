@@ -1,0 +1,30 @@
+
+## Appendix
+
+### Appendix A. Cloud and OnPrem Services
+
+While each entity of a workflow will want and need to manage their own instances of the vCon Services, the services are likely cloud-hosted SaaS, assuring the entity maintains their core business focus.
+
+### Appendix B. Open Items
+
+#### B.1. vCon Manifests
+
+vCons represent several elements, which contain rich privacy information, or large formats. For reasons of privacy, conformance to governance, or cost efficiency of storage, vCon elements may be individually stored as blobs. A vCon Manifest references the blobs, enabling the sharing of a subset of a vCon, while still integrity protecting the contents.
+
+#### B.2. Data Subject Visibility
+
+What visibility and access should a Data Subject have?
+
+* Can they receive links to their vCons?
+* What content can they view or listen to?
+* Can/should they see all places their vCon has been sent?
+* Can they set or change the consent purpose?
+* Can they revoke consent and view revocation status?
+* If an entity has received a copy but hasn't acknowledged it, should the Data Subject be informed which company that is?
+
+### Appendix C. Q & A
+
+* What makes SCITT different from an immutable database?
+* What makes SCITT different from Blockchain Technology?
+* Are different ledger formats supported?
+  * Yes – Datatrails implements a Merkle Mountain Range implementation, providing performance, scale and the ability to purge older information reducing storage, while maintaining the overall integrity protection. Other implementations like Microsoft CCF or RFC 9162 provide alternative formats. 
