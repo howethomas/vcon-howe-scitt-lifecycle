@@ -12,7 +12,7 @@ Expires: 8 January 2026
 
 
                  vCon Lifecycle Management using SCITT
-                    draft-howe-vcon-scitt-lifecycle
+                 draft-howe-vcon-scitt-lifecycle-latest
 
 Abstract
 
@@ -41,8 +41,10 @@ About This Document
    This note is to be removed before publishing as an RFC.
 
    The latest revision of this draft can be found at
-   https://example.com/LATEST.  Status information for this document may
-   be found at https://datatracker.ietf.org/doc/draft-howe-vcon-scitt/.
+   https://howethomas.github.io/vcon-howe-scitt-lifecycle/draft-howe-
+   vcon-scitt-lifecycle.html.  Status information for this document may
+   be found at https://datatracker.ietf.org/doc/draft-howe-vcon-scitt-
+   lifecycle/.
 
    Discussion of this document takes place on the Virtualized
    Conversations Working Group mailing list (mailto:vcon@ietf.org),
@@ -239,11 +241,11 @@ Table of Contents
    A wide range of industries and business scenarios benefit from
    virtual conversations, making them valuable across countless
    organizations.The breadth of industries and scenarios that benefit
-   from virtual conversations spans numerous companies.
-   The power of this technology lies in enabling cross-conversation
-   collaboration.  By implementing a standards-based approach, both
-   collaborative and competitive companies can easily integrate with
-   solutions for transcription, consent management, and CRM integration.
+   from virtual conversations spans numerous companies.  The power of
+   this technology lies in enabling cross-conversation collaboration.
+   By implementing a standards-based approach, both collaborative and
+   competitive companies can easily integrate with solutions for
+   transcription, consent management, and CRM integration.
 
    Packaging conversations and associated metadata in the vCon format
    provides a standardized means to communicate what has been sent.  Due
