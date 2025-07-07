@@ -1,0 +1,2005 @@
+<!DOCTYPE html>
+<html lang="en" class="Internet-Draft">
+<head>
+<meta charset="utf-8">
+<meta content="Common,Latin" name="scripts">
+<meta content="initial-scale=1.0" name="viewport">
+<title>vCon Lifecycle Management using SCITT</title>
+<meta content="Thomas McCarthy-Howe" name="author">
+<meta content="S. Lasker" name="author">
+<meta content="Diana James" name="author">
+<meta content="
+       This document proposes using the SCITT (Supply Chain, Integrity, Transparency, and Trust) protocol to manage the lifecycle of Virtual Conversations (vCons), which are standardized containers for conversational data like call recordings, transcripts, and chat logs.
+While vCons enable capturing and sharing conversation details for AI analysis and business purposes, they lack mechanisms for proving compliance with privacy regulations and consent management.
+SCITT addresses this by providing an immutable, append-only transparency ledger that records key lifecycle events—from vCon creation and consent management to call recording, as well as data processing and deletion—enabling entities to demonstrate regulatory compliance and maintain trust across distributed systems.
+The framework specifically addresses consent management challenges under regulations like GDPR and CCPA, where consent can be revoked at any time, requiring coordinated deletion across all parties that have received the vCon.
+By combining vCons with SCITT, organizations can build scalable, transparent governance systems that protect personal data rights while enabling responsible use of conversational data for AI and business applications. 
+    " name="description">
+<meta content="xml2rfc 3.29.0" name="generator">
+<meta content="conversation" name="keyword">
+<meta content="vcon" name="keyword">
+<meta content="CDR" name="keyword">
+<meta content="call detail record" name="keyword">
+<meta content="call meta data" name="keyword">
+<meta content="call recording" name="keyword">
+<meta content="email thread" name="keyword">
+<meta content="text conversation" name="keyword">
+<meta content="video recording" name="keyword">
+<meta content="video conference" name="keyword">
+<meta content="conference recording" name="keyword">
+<meta content="SCITT" name="keyword">
+<meta content="transparency" name="keyword">
+<meta content="draft-howe-vcon-scitt-lifecycle" name="ietf.draft">
+<!-- Generator version information:
+  xml2rfc 3.29.0
+    Python 3.12.11
+    ConfigArgParse 1.7
+    google-i18n-address 3.1.1
+    intervaltree 3.1.0
+    Jinja2 3.1.6
+    lxml 5.3.1
+    platformdirs 4.3.8
+    pycountry 24.6.1
+    PyYAML 6.0.2
+    requests 2.32.4
+    setuptools 80.9.0
+    wcwidth 0.2.13
+-->
+<link href="draft-howe-vcon-scitt-lifecycle.xml" rel="alternate" type="application/rfc+xml">
+<link href="#copyright" rel="license">
+<style type="text/css">@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-cyrillic.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-cyrillic.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Lora SemiBold'), local('Lora-SemiBold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-semibold-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Oxygen Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Oxygen Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-greek.woff2') format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-greek.woff2') format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  color-scheme: light dark;
+  --background-color: #fff;
+  --text-color: #222;
+  --title-color: #191919;
+  --link-color: #2a6496;
+  --highlight-color: #f9f9f9;
+  --line-color: #eee;
+  --pilcrow-weak: #ddd;
+  --pilcrow-strong: #bbb;
+  --small-font-size: 14.5px;
+  --font-mono: 'Oxygen Mono', monospace;
+  --font-title: "Sofia Sans Semi Condensed", sans-serif;
+  scrollbar-color: #bbb #eee;
+}
+body {
+  max-width: 600px;
+  margin: 75px auto;
+  padding: 0 5px;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  font: 16px/22px "Lora", serif;
+  scroll-behavior: smooth;
+}
+
+.ears {
+  display: none;
+}
+
+/* headings */
+section {
+  clear: both;
+}
+.section-number {
+  padding-right: 0.5em;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-title);
+  font-weight: 680;
+  margin: 0.8em 0 0.3em;
+  font-size-adjust: 0.5;
+  color: var(--title-color);
+}
+h1#title {
+  font-size: 32px;
+  line-height: 40px;
+  clear: both;
+}
+h1#title, h1#rfcnum {
+  margin: 1.5em 0 0.2em;
+}
+h1#rfcnum + h1#title {
+  margin: 0.2em 0;
+}
+
+h1, h2, h3 {
+  font-size: 22px;
+  line-height: 27px;
+}
+h4, h5, h6 {
+  font-size: 20px;
+  line-height: 24px;
+}
+
+/* general structure */
+.author {
+  padding-bottom: 0.3em;
+  vertical-align: top;
+}
+#abstract+p {
+  font-size: 18px;
+  line-height: 24px;
+}
+#abstract+p code, #abstract+p samp, #abstract+p tt {
+  font-size: 16px;
+  line-height: 0;
+}
+
+p {
+  padding: 0;
+  margin: 0.5em 0;
+  text-align: left;
+}
+div {
+  margin: 0;
+}
+.alignRight.art-text {
+  background-color: var(--highlight-color);
+  border: 1px solid var(--line-color);
+  border-radius: 3px;
+  padding: 0.5em 1em 0;
+  margin-bottom: 0.5em;
+}
+.alignRight.art-text pre {
+  padding: 0;
+  width: auto;
+}
+.alignRight {
+  margin: 1em 0;
+}
+.alignRight > *:first-child {
+  border: none;
+  margin: 0;
+  float: right;
+  clear: both;
+}
+.alignRight > *:nth-child(2) {
+  clear: both;
+  display: block;
+  border: none;
+}
+svg {
+  display: block;
+}
+/* font-family isn't space-separated, but =~ will have to do */
+svg[font-family~="monospace" i], svg [font-family~="monospace" i] {
+  font-family: var(--font-mono);
+}
+.alignCenter.art-text {
+  background-color: var(--highlight-color);
+  border: 1px solid var(--line-color);
+  border-radius: 3px;
+  padding: 0.5em 1em 0;
+  margin-bottom: 0.5em;
+}
+.alignCenter.art-text pre {
+  padding: 0;
+  width: auto;
+}
+.alignCenter {
+  margin: 1em 0;
+}
+.alignCenter > *:first-child {
+  border: none;
+  /* this isn't optimal, but it's an existence proof.  PrinceXML doesn't
+     support flexbox yet.
+  */
+  display: table;
+  margin: 0 auto;
+}
+
+/* lists */
+ol, ul {
+  padding: 0;
+  margin: 0 0 0.5em 2em;
+  & :is(ol, ul) {
+    margin-left: 1em;
+  }
+}
+li {
+  margin: 0 0 0.25em 0;
+}
+ul.empty, .ulEmpty {
+  list-style-type: none;
+  & li {
+    margin-top: 0.5em;
+  }
+}
+:is(ul, ol).compact, .ulCompact, .olCompact {
+  margin: 0 0 0 2em;
+  & li {
+    margin: 0;
+    & :first-child { margin-top: 0; }
+    & :last-child { margin-bottom: 0; }
+  }
+}
+
+/* definition lists */
+dl {
+  clear: left;
+  --indent: 3ch;
+  /* --indent: attr(indent ch); not supported in any browser, but we can dream */
+  &.olPercent {
+    --indent: 5ch;
+    & > dt {
+      min-width: calc(var(--indent) - 2ch);
+    }
+  }
+  &.olPercent > dt {
+    float: none;
+  }
+
+  dl > dd > & {
+    margin-top: 0.5em;
+    margin-bottom: 0;
+  }
+}
+dl:not(.dlNewline) > dt {
+  float: left;
+  margin-right: 2ch;
+  min-width: 8ch;
+}
+dl > dd {
+  margin-bottom: .8em;
+  margin-left: var(--indent) !important; /* stupid element overrides */
+  min-height: 2ex;
+}
+:is(dl.compact, .dlCompact) > dd {
+  margin-bottom: 0;
+  & > :is(:first-child, .break:first-child + *) {
+    margin-top: 0;
+  }
+  & > :is(:last-child) {
+    margin-bottom: 0;
+  }
+}
+:is(dd, span).break {
+  display: none;
+}
+
+/* links */
+a, a[href].selfRef:hover {
+  text-decoration: none;
+}
+a[href] {
+  color: var(--link-color);
+}
+a[href].selfRef, .iref + a[href].internal {
+  color: var(--text-color);
+}
+a[href]:hover {
+  text-decoration: underline;
+}
+a[href].selfRef:hover {
+  background-color: var(--highlight-color);
+}
+a.xref:is(.cite, .auto), :is(#status-of-memo, #copyright) a {
+  white-space: nowrap;
+}
+
+/* Figures */
+tt, code, pre {
+  background-color: var(--highlight-color);
+  font: 14px/22px var(--font-mono);
+}
+tt, code {
+  /* changing the font for inline elements leads to different ascender
+     and descender heights; as we want to retain baseline alignment,
+     remove leading to avoid altering the final height of lines
+     note: this fails if these blocks take an entire line,
+     a different solution would be great */
+  line-height: 0;
+}
+:is(h1, h2, h3, h4, h5, h6) :is(tt, code) {
+  font-size: 84%;
+}
+pre {
+  border: 1px solid var(--line-color);
+  font-size: 13.5px;
+  line-height: 16px;
+  letter-spacing: -0.2px;
+  margin: 5px;
+  padding: 5px;
+}
+img {
+  max-width: 100%;
+}
+figure {
+  margin: 0.5em 0;
+  padding: 0;
+}
+figure blockquote {
+  margin: 0.8em 0.4em 0.4em;
+}
+figcaption, caption {
+  font-style: italic;
+  margin: 0.5em 1.5em;
+  text-align: left;
+  caption-side: bottom;
+}
+@media screen {
+  /* Auto-collapse boilerplate. */
+  :is(#status-of-memo, #copyright) p {
+    margin: -2px 0;
+    max-height: 0;
+    transition: max-height 2s ease, margin 0.5s ease 0.5s;
+    overflow: hidden;
+  }
+  :is(#status-of-memo, #copyright):hover p,
+  :is(#status-of-memo, #copyright) h2:target ~ p {
+    margin: 0.5em 0;
+    max-height: 500px;
+    overflow: auto;
+  }
+  pre, svg {
+    display: inline-block;
+    /* In the horizontal direction, sometimes people make over-sized figures.
+       Scrollbars for those is therefore necessary: auto adds them as necessary..
+       In the vertical direction, the line-height can combine with the font
+       asender/descender height to produce scrollbars: hidden avoids that. */
+    overflow: auto hidden;
+  }
+  pre {
+    max-width: 100%;
+    width: calc(100% - 22px - 1em);
+  }
+  svg {
+    max-width: calc(100% - 22px - 1em);
+  }
+  figure pre {
+    display: block;
+    width: calc(100% - 25px);
+  }
+  :is(pre, svg) + .pilcrow {
+    display: inline-block;
+    vertical-align: text-bottom;
+    padding-bottom: 8px;
+  }
+}
+
+/* aside, blockquote */
+aside, blockquote {
+  margin-left: 0;
+  padding: 0 2em;
+  font-style: italic;
+}
+blockquote {
+  margin: 1em 0;
+}
+cite {
+  display: block;
+  text-align: right;
+  font-style: italic;
+}
+
+/* tables */
+table {
+  width: auto;
+  max-width: 100%;
+  margin: 0 0 1em;
+  border-collapse: collapse;
+}
+table.right {
+  margin-left: auto;
+}
+table.center {
+  margin-left: auto;
+  margin-right: auto;
+}
+table.left {
+  margin-right: auto;
+}
+table .text-left {
+  text-align: left;
+}
+table .text-center {
+  text-align: center;
+}
+table .text-right {
+  text-align: right;
+}
+
+thead, tbody {
+  border: 1px solid var(--line-color);
+}
+th, td {
+  text-align: left;
+  vertical-align: top;
+  padding: 5px 10px;
+}
+th {
+  background-color: var(--line-color);
+}
+:is(tr:nth-child(2n), thead+tbody > tr:nth-child(2n+1)) > td {
+  background-color: var(--background-color);
+}
+:is(tr:nth-child(2n+1), thead+tbody > tr:nth-child(2n)) > td {
+  background-color: var(--highlight-color);
+}
+table caption {
+  margin: 0;
+  padding: 3px 0 3px 1em;
+}
+table p {
+  margin: 0;
+}
+
+/* pilcrow */
+a.pilcrow {
+  margin-left: 3px;
+  opacity: 0.2;
+  user-select: none;
+  &[href] {
+    color: var(--pilcrow-weak);
+    &:hover { text-decoration: none; }
+  }
+}
+@media not print {
+  :hover > a.pilcrow {
+    opacity: 1;
+  }
+  a.pilcrow[href]:hover {
+    color: var(--pilcrow-strong);
+    background-color: transparent;
+  }
+}
+@media print {
+  a.pilcrow {
+    display: none;
+  }
+}
+
+/* misc */
+hr {
+  border: 0;
+  border-top: 1px solid var(--line-color);
+}
+.bcp14 {
+  font-variant: small-caps;
+  font-weight: 600;
+  font-size: var(--small-font-size);
+}
+.role {
+  font-variant: all-small-caps;
+}
+sub, sup {
+  line-height: 1;
+  font-size: 80%;
+}
+
+/* info block */
+#identifiers {
+  margin: 0;
+  font-size: var(--small-font-size);
+  line-height: 18px;
+  --identifier-width: 15ch;
+  & dt {
+    width: var(--identifier-width);
+    min-width: var(--identifier-width);
+    clear: left;
+    float: left;
+    text-align: right;
+    margin-right: 1ch;
+  }
+  & dd {
+    margin: 0;
+    margin-left: calc(1em + var(--identifier-width)) !important;
+    min-width: 5em;
+  }
+  & .authors {
+    & .author {
+      display: inline-block;
+      margin-right: 1.5em;
+    }
+    & .org {
+      font-style: italic;
+    }
+  }
+}
+
+/* The prepared/rendered info at the very bottom of the page */
+.docInfo {
+  color: #999;
+  font-size: 0.9em;
+  font-style: italic;
+  margin-top: 2em;
+}
+.docInfo .prepared {
+  float: right;
+}
+
+/* table of contents */
+#toc {
+  padding: 0.75em 0 2em 0;
+  margin-bottom: 1em;
+
+  & nav {
+    & ul {
+      margin: 0 0.5em 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    & li {
+      line-height: 1.3em;
+      margin: 2px 0;
+      padding-left: 1.2em;
+      text-indent: -1.2em;
+    }
+  }
+  & a.xref {
+    white-space: normal;
+  }
+}
+
+.references {
+  & > dt {
+    text-align: right;
+    font-weight: bold;
+    min-width: 10ch;
+    margin-right: 1.5ch;
+    &:target::before {
+      content: "⇒";
+      margin: 0 10px 0 -25px;
+    }
+  }
+  & > dd {
+    margin-left: 12ch !important;
+    overflow: visible;
+    & .refInstance {
+      margin-bottom: 0.8em;
+    }
+    & .ascii {
+      margin-bottom: 0.25em;
+    }
+  }
+}
+
+#rfc\.index\.index + ul {
+  margin-left: 0;
+}
+
+/* authors */
+address.vcard {
+  font-style: normal;
+  max-width: 20em;
+  margin: 1em auto 1em 0;
+
+  & .nameRole {
+    font-weight: 700;
+    margin-left: 0;
+  }
+  & .label {
+    margin: 0.5em 0;
+  }
+  & .type {
+    display: none;
+  }
+  & .alternative-contact {
+    margin: 0.5em 0 0.25em 0;
+  }
+  & .non-ascii {
+    margin: 0 0 0 2em;
+  }
+  & div.left {
+    text-align: left;
+  }
+  & div.right {
+    text-align: right;
+  }
+}
+
+hr.addr {
+  border-top: 1px dashed;
+  margin: 0;
+  color: #ddd;
+  max-width: calc(100% - 16px);
+}
+@media (min-width: 500px) {
+  #authors-addresses > section {
+    column-count: 2;
+    column-gap: 20px;
+  }
+  #authors-addresses > section > h2 {
+    column-span: all;
+  }
+  /* hack for break-inside: avoid-column */
+  #authors-addresses address {
+    display: inline-block;
+    break-inside: avoid-column;
+  }
+}
+
+/* Comments */
+.rfcEditorRemove p:first-of-type {
+  font-style: italic;
+}
+.cref {
+  background-color: rgba(249, 232, 105, 0.3);
+  padding: 2px 4px;
+}
+.crefSource {
+  font-style: italic;
+}
+
+@media screen {
+  #toc nav {
+    font-family: var(--font-title);
+    font-weight: 360;
+    & > ul { margin-bottom: 2em; }
+    & ul {
+      margin: 0 0 0 4px;
+      & :is(p, li) {
+        margin: 2px 0;
+      }
+    }
+  }
+  #toc a.toplink {
+    float: right;
+  }
+}
+@media not screen {
+  #toc a.toplink {
+    display: none;
+  }
+}
+
+
+/* TOC layout for smaller screens */
+@media screen and (max-width: 929px) {
+  #toc {
+    position: fixed;
+    z-index: 2;
+    top: 0;
+    right: 0;
+    padding: 1px 0 0 0;
+    margin: 0;
+    border-bottom: 1px solid #ccc;
+    opacity: 0.6;
+  }
+  #toc h2 {
+    margin: 0;
+    padding: 2px 0 2px 6px;
+    padding-right: 1em;
+    font-size: 18px;
+    line-height: 24px;
+    min-width: 190px;
+    text-align: right;
+    background-color: #444;
+    color: white;
+    cursor: pointer;
+    &::before { /* css hamburger */
+      float: right;
+      position: relative;
+      width: 1em;
+      height: 1px;
+      left: -164px;
+      margin: 8px 0 0 0;
+      background: white none repeat scroll 0 0;
+      box-shadow: 0 4px 0 0 white, 0 8px 0 0 white;
+      content: "";
+    }
+  }
+  #toc nav {
+    display: none;
+    background-color: var(--background-color);
+    padding: 0.5em 1em 1em;
+    overflow: auto;
+    overscroll-behavior: contain;
+    height: calc(100vh - 48px);
+    border-left: 1px solid #ddd;
+  }
+  #toc.active {
+    opacity: 1;
+    & nav { display: block; }
+  }
+  /* Make the collapsed ToC header render white on gray also when it's a link */
+  #toc h2 a,
+  #toc h2 a:is(:link, :focus, :hover),
+  #toc a.toplink,
+  #toc a.toplink:hover {
+    color: white;
+    background-color: #444;
+    text-decoration: none;
+  }
+  #toc a.toplink {
+    margin: 2px 0.5em 0;
+  }
+}
+
+/* TOC layout for wide screens */
+@media screen and (min-width: 930px) {
+  body {
+    padding-right: 360px;
+    padding-right: calc(min(180px + 20%, 500px));
+  }
+  #toc {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    right: calc(50vw - 480px);
+    width: 312px;
+    margin: 0;
+    padding: 0;
+    z-index: 1;
+  }
+  #toc h2 {
+    margin: 0;
+    padding: 0.25em 1em 1em 0;
+  }
+  #toc nav {
+    display: block;
+    height: calc(90vh - 84px);
+    bottom: 0;
+    padding: 0.5em 0 2em;
+    overflow: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+  img { /* future proofing */
+    max-width: 100%;
+    height: auto;
+  }
+  #toc a.toplink {
+    margin: 8px 0.5em 0;
+  }
+}
+
+/* pagination */
+@media print {
+  body {
+    width: 100%;
+  }
+  p {
+    orphans: 3;
+    widows: 3;
+  }
+  #n-copyright-notice {
+    border-bottom: none;
+  }
+  #toc, #n-introduction {
+    page-break-before: always;
+  }
+  #toc {
+    border-top: none;
+    padding-top: 0;
+  }
+  figure, pre, .vcard {
+    page-break-inside: avoid;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+  }
+  :is(h2, h3, h4, h5, h6)+*, dd {
+    page-break-before: avoid;
+  }
+  pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 10pt;
+  }
+  table {
+    border: 1px solid #ddd;
+  }
+  td {
+    border-top: 1px solid #ddd;
+  }
+}
+
+@page :first {
+  padding-top: 0;
+  @top-left {
+    content: normal;
+    border: none;
+  }
+  @top-center {
+    content: normal;
+    border: none;
+  }
+  @top-right {
+    content: normal;
+    border: none;
+  }
+}
+
+@page {
+  size: A4;
+  margin-bottom: 45mm;
+  padding-top: 20px;
+}
+
+/* Dark mode. */
+@media (prefers-color-scheme: dark) {
+:root {
+  --background-color: #121212;
+  --text-color: #f0f0f0;
+  --title-color: #fff;
+  --link-color: #4da4f0;
+  --highlight-color: #282828;
+  --line-color: #444;
+  --pilcrow-weak: #444;
+  --pilcrow-strong: #666;
+  scrollbar-color: #777 #333;
+}
+}
+
+/* SVG Trick: a prefix match works because only black and white are allowed */
+svg :is([stroke="black"], [stroke^="#000"]) {
+  stroke: var(--text-color);
+}
+svg :is([stroke="white"], [stroke^="#fff"]) {
+  stroke: var(--background-color);
+}
+svg :is([fill="black"], [fill^="#000"], :not([fill])) {
+  fill: var(--text-color);
+}
+svg :is([fill="white"], [fill^="#fff"]) {
+  fill: var(--background-color);
+}
+</style>
+
+</head>
+<body class="xml2rfc">
+<table class="ears">
+<thead><tr>
+<td class="left">Internet-Draft</td>
+<td class="center">vCon Lifecycle</td>
+<td class="right">July 2025</td>
+</tr></thead>
+<tfoot><tr>
+<td class="left">McCarthy-Howe, et al.</td>
+<td class="center">Expires 8 January 2026</td>
+<td class="right">[Page]</td>
+</tr></tfoot>
+</table>
+<div id="external-metadata" class="document-information"></div>
+<div id="internal-metadata" class="document-information">
+<dl id="identifiers">
+<dt class="label-workgroup">Workgroup:</dt>
+<dd class="workgroup">Virtualized Conversations</dd>
+<dt class="label-internet-draft">Internet-Draft:</dt>
+<dd class="internet-draft">draft-howe-vcon-scitt-lifecycle</dd>
+<dt class="label-published">Published:</dt>
+<dd class="published">
+<time datetime="2025-07-07" class="published">7 July 2025</time>
+    </dd>
+<dt class="label-intended-status">Intended Status:</dt>
+<dd class="intended-status">Informational</dd>
+<dt class="label-expires">Expires:</dt>
+<dd class="expires"><time datetime="2026-01-08">8 January 2026</time></dd>
+<dt class="label-authors">Authors:</dt>
+<dd class="authors">
+<div class="author">
+      <div class="author-name">T. McCarthy-Howe</div>
+<div class="org">Strolid, Inc.</div>
+</div>
+<div class="author">
+      <div class="author-name">S. Lasker</div>
+</div>
+<div class="author">
+      <div class="author-name">D. James</div>
+<div class="org">Marashlian &amp; Donahue, PLLC</div>
+</div>
+</dd>
+</dl>
+</div>
+<h1 id="title">vCon Lifecycle Management using SCITT</h1>
+<section id="section-abstract">
+      <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
+<p id="section-abstract-1">This document proposes using the SCITT (Supply Chain, Integrity, Transparency, and Trust) protocol to manage the lifecycle of Virtual Conversations (vCons), which are standardized containers for conversational data like call recordings, transcripts, and chat logs.
+While vCons enable capturing and sharing conversation details for AI analysis and business purposes, they lack mechanisms for proving compliance with privacy regulations and consent management.
+SCITT addresses this by providing an immutable, append-only transparency ledger that records key lifecycle events—from vCon creation and consent management to call recording, as well as data processing and deletion—enabling entities to demonstrate regulatory compliance and maintain trust across distributed systems.
+The framework specifically addresses consent management challenges under regulations like GDPR and CCPA, where consent can be revoked at any time, requiring coordinated deletion across all parties that have received the vCon.
+By combining vCons with SCITT, organizations can build scalable, transparent governance systems that protect personal data rights while enabling responsible use of conversational data for AI and business applications.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+</section>
+<section class="note rfcEditorRemove" id="section-note.1">
+      <h2 id="name-about-this-document">
+<a href="#name-about-this-document" class="section-name selfRef">About This Document</a>
+      </h2>
+<p id="section-note.1-1">This note is to be removed before publishing as an RFC.<a href="#section-note.1-1" class="pilcrow">¶</a></p>
+<p id="section-note.1-2">
+        The latest revision of this draft can be found at <span><a href="https://example.com/LATEST">https://example.com/LATEST</a></span>.
+        Status information for this document may be found at <span><a href="https://datatracker.ietf.org/doc/draft-howe-vcon-scitt/">https://datatracker.ietf.org/doc/draft-howe-vcon-scitt/</a></span>.<a href="#section-note.1-2" class="pilcrow">¶</a></p>
+<p id="section-note.1-3">
+        Discussion of this document takes place on the
+        Virtualized Conversations Working Group mailing list (<span><a href="mailto:vcon@ietf.org">mailto:vcon@ietf.org</a></span>),
+        which is archived at <span><a href="https://mailarchive.ietf.org/arch/browse/vcon/">https://mailarchive.ietf.org/arch/browse/vcon/</a></span>.
+        Subscribe at <span><a href="https://www.ietf.org/mailman/listinfo/vcon/">https://www.ietf.org/mailman/listinfo/vcon/</a></span>.<a href="#section-note.1-3" class="pilcrow">¶</a></p>
+<p id="section-note.1-4">Source for this draft and an issue tracker can be found at
+        <span><a href="https://github.com/howethomas/vcon-howe-scitt-lifecycle">https://github.com/howethomas/vcon-howe-scitt-lifecycle</a></span>.<a href="#section-note.1-4" class="pilcrow">¶</a></p>
+</section>
+<div id="status-of-memo">
+<section id="section-boilerplate.1">
+        <h2 id="name-status-of-this-memo">
+<a href="#name-status-of-this-memo" class="section-name selfRef">Status of This Memo</a>
+        </h2>
+<p id="section-boilerplate.1-1">
+        This Internet-Draft is submitted in full conformance with the
+        provisions of BCP 78 and BCP 79.<a href="#section-boilerplate.1-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-2">
+        Internet-Drafts are working documents of the Internet Engineering Task
+        Force (IETF). Note that other groups may also distribute working
+        documents as Internet-Drafts. The list of current Internet-Drafts is
+        at <span><a href="https://datatracker.ietf.org/drafts/current/">https://datatracker.ietf.org/drafts/current/</a></span>.<a href="#section-boilerplate.1-2" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-3">
+        Internet-Drafts are draft documents valid for a maximum of six months
+        and may be updated, replaced, or obsoleted by other documents at any
+        time. It is inappropriate to use Internet-Drafts as reference
+        material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-4">
+        This Internet-Draft will expire on 8 January 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="copyright">
+<section id="section-boilerplate.2">
+        <h2 id="name-copyright-notice">
+<a href="#name-copyright-notice" class="section-name selfRef">Copyright Notice</a>
+        </h2>
+<p id="section-boilerplate.2-1">
+            Copyright (c) 2025 IETF Trust and the persons identified as the
+            document authors. All rights reserved.<a href="#section-boilerplate.2-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.2-2">
+            This document is subject to BCP 78 and the IETF Trust's Legal
+            Provisions Relating to IETF Documents
+            (<span><a href="https://trustee.ietf.org/license-info">https://trustee.ietf.org/license-info</a></span>) in effect on the date of
+            publication of this document. Please review these documents
+            carefully, as they describe your rights and restrictions with
+            respect to this document. Code Components extracted from this
+            document must include Revised BSD License text as described in
+            Section 4.e of the Trust Legal Provisions and are provided without
+            warranty as described in the Revised BSD License.<a href="#section-boilerplate.2-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="toc">
+<section id="section-toc.1">
+        <a href="#" onclick="scroll(0,0)" class="toplink">▲</a><h2 id="name-table-of-contents">
+<a href="#name-table-of-contents" class="section-name selfRef">Table of Contents</a>
+        </h2>
+<nav class="toc"><ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1">
+            <p id="section-toc.1-1.1.1"><a href="#section-1" class="auto internal xref">1</a>.  <a href="#name-introduction" class="internal xref">Introduction</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.1">
+                <p id="section-toc.1-1.1.2.1.1" class="keepWithNext"><a href="#section-1.1" class="auto internal xref">1.1</a>.  <a href="#name-acts-of-trust-and-transpare" class="internal xref">Acts of Trust and Transparency</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.2">
+                <p id="section-toc.1-1.1.2.2.1" class="keepWithNext"><a href="#section-1.2" class="auto internal xref">1.2</a>.  <a href="#name-standards-based-interoperab" class="internal xref">Standards-Based Interoperability</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.3">
+                <p id="section-toc.1-1.1.2.3.1" class="keepWithNext"><a href="#section-1.3" class="auto internal xref">1.3</a>.  <a href="#name-what-differentiates-scitt-f" class="internal xref">What Differentiates SCITT from a Database</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2">
+            <p id="section-toc.1-1.2.1"><a href="#section-2" class="auto internal xref">2</a>.  <a href="#name-conventions-and-definitions" class="internal xref">Conventions and Definitions</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3">
+            <p id="section-toc.1-1.3.1"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-vcon-lifecycle" class="internal xref">vCon Lifecycle</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.1">
+                <p id="section-toc.1-1.3.2.1.1"><a href="#section-3.1" class="auto internal xref">3.1</a>.  <a href="#name-example-use-case-consent-ma" class="internal xref">Example Use Case: Consent Management</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.2">
+                <p id="section-toc.1-1.3.2.2.1"><a href="#section-3.2" class="auto internal xref">3.2</a>.  <a href="#name-vcon-lifecycle-scope" class="internal xref">vCon Lifecycle Scope</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.2.2.1">
+                    <p id="section-toc.1-1.3.2.2.2.1.1"><a href="#section-3.2.1" class="auto internal xref">3.2.1</a>.  <a href="#name-creation-distribution-and-d" class="internal xref">Creation, Distribution and Deletion</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.2.2.2">
+                    <p id="section-toc.1-1.3.2.2.2.2.1"><a href="#section-3.2.2" class="auto internal xref">3.2.2</a>.  <a href="#name-digital-rights-management" class="internal xref">Digital Rights Management</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.2.2.3">
+                    <p id="section-toc.1-1.3.2.2.2.3.1"><a href="#section-3.2.3" class="auto internal xref">3.2.3</a>.  <a href="#name-amendment-of-existing-vcons" class="internal xref">Amendment of Existing vCons</a></p>
+</li>
+                </ul>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4">
+            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-detailed-use-case" class="internal xref">Detailed Use Case</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1">
+                <p id="section-toc.1-1.4.2.1.1"><a href="#section-4.1" class="auto internal xref">4.1</a>.  <a href="#name-vcon-create-consent-and-sha" class="internal xref">vCon Create, Consent and Share</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1.2.1">
+                    <p id="section-toc.1-1.4.2.1.2.1.1"><a href="#section-4.1.1" class="auto internal xref">4.1.1</a>.  <a href="#name-data-subject" class="internal xref">Data Subject</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1.2.2">
+                    <p id="section-toc.1-1.4.2.1.2.2.1"><a href="#section-4.1.2" class="auto internal xref">4.1.2</a>.  <a href="#name-data-controller-revocation" class="internal xref">Data Controller Revocation</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1.2.3">
+                    <p id="section-toc.1-1.4.2.1.2.3.1"><a href="#section-4.1.3" class="auto internal xref">4.1.3</a>.  <a href="#name-data-processor-revocation" class="internal xref">Data Processor Revocation</a></p>
+</li>
+                </ul>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5">
+            <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-vcon-lifecycle-events" class="internal xref">vCon Lifecycle Events</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6">
+            <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7">
+            <p id="section-toc.1-1.7.1"><a href="#section-7" class="auto internal xref">7</a>.  <a href="#name-privacy-considerations" class="internal xref">Privacy Considerations</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8">
+            <p id="section-toc.1-1.8.1"><a href="#section-8" class="auto internal xref">8</a>.  <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
+            <p id="section-toc.1-1.9.1"><a href="#section-9" class="auto internal xref">9</a>.  <a href="#name-references" class="internal xref">References</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.1">
+                <p id="section-toc.1-1.9.2.1.1"><a href="#section-9.1" class="auto internal xref">9.1</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.2">
+                <p id="section-toc.1-1.9.2.2.1"><a href="#section-9.2" class="auto internal xref">9.2</a>.  <a href="#name-informative-references" class="internal xref">Informative References</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
+            <p id="section-toc.1-1.10.1"><a href="#section-10" class="auto internal xref">10</a>. <a href="#name-informative-references-2" class="internal xref">Informative References</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11">
+            <p id="section-toc.1-1.11.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-authors-addresses" class="internal xref">Authors' Addresses</a></p>
+</li>
+        </ul>
+</nav>
+</section>
+</div>
+<div id="introduction">
+<section id="section-1">
+      <h2 id="name-introduction">
+<a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
+      </h2>
+<p id="section-1-1">Virtual Conversations (vCons) <a href="https://datatracker.ietf.org/wg/vcon/about">draft-vcon</a> are powerful means of
+   capturing and collaborating on the details of human conversations,
+   built to travel.  They feed AI systems, enable entities to respond
+   more accurately to customer needs, and manage the health of their
+   business more effectively.  The vCon working group focuses on
+   passing conversational data, such as data commonly generated and
+   collected in business and security environments, from chat logs to
+   transcripts to recordings.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-2">Most systems provide a way to store such information, but there are
+   few standards or interoperability within the storage or transmission
+   mechanisms.  vCon is a framework for capturing and collaborating on
+   the details of a Virtual Conversation, feeding AI systems, and
+   enabling entities to respond to customer needs more accurately and
+   manage their business's health more effectively.<a href="#section-1-2" class="pilcrow">¶</a></p>
+<p id="section-1-3">The two opposing forces influencing such information passing are
+   trying to enforce personal data and communications privacy and providing the ability and
+   interest to use conversations in various ways, e.g., AI analysis.<a href="#section-1-3" class="pilcrow">¶</a></p>
+<p id="section-1-4">Although vCons are tools that enable actors to do the right thing,
+   they are not tools that enable actors in a distributed system to
+   prove it.  However, when combined with the SCITT protocol
+   <a href="https://datatracker.ietf.org/wg/scitt/about">draft-scitt</a>, proof becomes practical.  SCITT allows Relying Parties
+   to obtain information pertinent to the lifecycle of a vCon in a
+   "transparent" way.  SCITT achieves this by having producers publish
+   information in a Transparency Service, where Relying Parties can
+   check the information.<a href="#section-1-4" class="pilcrow">¶</a></p>
+<p id="section-1-5">These relying parties can then use this information to make decisions based on the current state and context of the vCon to account for changes in consent, updates in the accuracy of the content, or amendments of the information it might contain. SCITT, the Supply Chain, Integrity, Transparency, and Trust protocol, enables clients to register statements about events, physical or virtual, such as when things are created or used. These statements are immutable and are useful to support auditing, governance, and coordination between various distributed systems.<a href="#section-1-5" class="pilcrow">¶</a></p>
+<p id="section-1-6">When using vCons to define a conversation, and SCITT to record the
+events that occur to them, more scalable and transparent systems of
+governance and provenance can be constructed to support privacy
+efforts.  It is expected that there are many situations where this
+governance across security boundaries is common and desired by all
+parties.  One real-world example of this is management of consent as
+it applies to the use of conversations for different purposes, such as machine learning.  Using
+conversations as inputs to machine learning has great benefit to both
+customers and businesses, yet only responsibly within the defense of
+personal data rights and compliance with personal data and communications privacy laws, united together
+by consent. Although consent to a call recording or personal data collection and processing is not always required under the applicable laws, seeking consent is often the best practice, given the Privacy by Design principles, multijurisdictional business operations, and the ever-changing privacy laws. Please see the <a href="https://datatracker.ietf.org/doc/draft-james-privacy-primer-vcon/">privacy-primer-vcon</a> for more information on consent.<a href="#section-1-6" class="pilcrow">¶</a></p>
+<p id="section-1-7">In all of these cases, the ability to define and express the processing of conversations depends on the ability to authoritatively define the lifecycle of a vCon:<a href="#section-1-7" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-1-8.1">
+          <p id="section-1-8.1.1">who originated the vCon in the first place to establish provenance<a href="#section-1-8.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-1-8.2">
+          <p id="section-1-8.2.1">how it was analyzed and amended, to accurately respond to right-to-know requests<a href="#section-1-8.2.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-1-8.3">
+          <p id="section-1-8.3.1">the authenticity both of the original document for downstream workflow<a href="#section-1-8.3.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-1-8.4">
+          <p id="section-1-8.4.1">and authenticity of the redactions that come from the original, in service of data minimization efforts<a href="#section-1-8.4.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-1-8.5">
+          <p id="section-1-8.5.1">the various expressions of digital rights<a href="#section-1-8.5.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-1-8.6">
+          <p id="section-1-8.6.1">the sharing or deletion in response to the same digital rights<a href="#section-1-8.6.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<p id="section-1-9">For this document and for purposes of illustration, consent will be used as an example. Proper consent management is fundamental to the responsible protection of data and the ability to leverage that data. Consent granted by the data subject of a vCon also needs to be stored and passed, exactly like the other information contained in a vCon. Unlike the rest of the information contained, the gathered consent is expressly not immutable. Consent, when gathered for a purpose, can also be revoked by the data subject at any time and surely after a vCon has been shared for analysis.<a href="#section-1-9" class="pilcrow">¶</a></p>
+<p id="section-1-10">Multiple regulations, including the US-born California Consumer Protection Act (CCPA) <a href="https://oag.ca.gov/privacy/ccpa">CCPA</a> and the EU-born General Data Protection Regulation (GDPR) <a href="https://gdpr.eu/">GDPR</a>, outline requirements for entities to use and dispose of PII information responsibly upon request. Consent, although illustrative, is not the only example of mutability in the lifecycle of a vCon. Verification of parties, improvements in the analysis, and additions of contextual attachments result in updates to a vCon after data is shared, begging for a mechanism to track and govern such changes.<a href="#section-1-10" class="pilcrow">¶</a></p>
+<p id="section-1-11">To honor the working group's charter to pass conversational data safely between consenting parties, this draft provides an overview of the requirements, a workflow and an example consent structure for using SCITT to manage the vCon lifecycle at scale, providing end-to-end, interoperable services and tooling. The workflow enables entities in the workflow to collaborate on a vCon while assuring all entities in the workflow adhere to relevant PII regulations using a SCITT Ledger. Actual implementations of these workflows are left to implementers and applications; this draft provides an authoritative list of the entries that should appear on the SCITT transparency ledger to enable them.<a href="#section-1-11" class="pilcrow">¶</a></p>
+<div id="acts-of-trust-and-transparency">
+<section id="section-1.1">
+        <h3 id="name-acts-of-trust-and-transpare">
+<a href="#section-1.1" class="section-number selfRef">1.1. </a><a href="#name-acts-of-trust-and-transpare" class="section-name selfRef">Acts of Trust and Transparency</a>
+        </h3>
+<p id="section-1.1-1">Throughout this workflow, no single entity can prove that other entities performed the required actions. However, by auditing the SCITT Ledgers of all involved parties, entities can prove they acted on the acknowledged consent and intent of the Data Subject, holding other entities accountable for performing required operations.<a href="#section-1.1-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="standards-based-interoperability">
+<section id="section-1.2">
+        <h3 id="name-standards-based-interoperab">
+<a href="#section-1.2" class="section-number selfRef">1.2. </a><a href="#name-standards-based-interoperab" class="section-name selfRef">Standards-Based Interoperability</a>
+        </h3>
+<p id="section-1.2-1">A wide range of industries and business scenarios benefit from virtual conversations, making them valuable across countless organizations.The breadth of industries and scenarios that benefit from virtual
+conversations spans numerous companies.<br>
+The power of this technology lies in enabling cross-conversation collaboration. By implementing a standards-based approach, both collaborative and competitive companies can easily integrate with solutions for transcription, consent management, and CRM integration.<a href="#section-1.2-1" class="pilcrow">¶</a></p>
+<p id="section-1.2-2">Packaging conversations and associated metadata in the vCon format provides a standardized means to communicate what has been sent. Due to the personally identifiable information and digital fingerprinting in vCons, it's critical to understand and adhere to regulatory requirements for PII management. Defining and implementing a standard provides stability in information management throughout the lifecycle.<a href="#section-1.2-2" class="pilcrow">¶</a></p>
+<p id="section-1.2-3">Recording which vCon elements were sent to various parties holds each accountable for what was sent, what was received, and when these exchanges occurred.<a href="#section-1.2-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="what-differentiates-scitt-from-a-database">
+<section id="section-1.3">
+        <h3 id="name-what-differentiates-scitt-f">
+<a href="#section-1.3" class="section-number selfRef">1.3. </a><a href="#name-what-differentiates-scitt-f" class="section-name selfRef">What Differentiates SCITT from a Database</a>
+        </h3>
+<p id="section-1.3-1">The information written to SCITT could be compared to information in a standard database. What makes SCITT different:<a href="#section-1.3-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-1.3-2.1">
+            <p id="section-1.3-2.1.1"><strong>Immutable and Append-Only nature</strong>: Once written, data cannot be modified or deleted<a href="#section-1.3-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-1.3-2.2">
+            <p id="section-1.3-2.2.1"><strong>Cryptographic security</strong>: Through pre-signed statements, making SCITT a notary that cannot alter contents<a href="#section-1.3-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-1.3-2.3">
+            <p id="section-1.3-2.3.1"><strong>Independent verifiability</strong>: Parties can verify data without trusting the service provider<a href="#section-1.3-2.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-1.3-2.4">
+            <p id="section-1.3-2.4.1"><strong>Separation</strong>: Between the immutable, append-only ledger and the evidentiary metadata store (which can be deleted/redacted for PII governance)<a href="#section-1.3-2.4.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-1.3-2.5">
+            <p id="section-1.3-2.5.1"><strong>Standardized communication</strong>: And enforcement of regulations and compliance<a href="#section-1.3-2.5.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+</section>
+</div>
+</section>
+</div>
+<div id="conventions-and-definitions">
+<section id="section-2">
+      <h2 id="name-conventions-and-definitions">
+<a href="#section-2" class="section-number selfRef">2. </a><a href="#name-conventions-and-definitions" class="section-name selfRef">Conventions and Definitions</a>
+      </h2>
+<p id="section-2-1">The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+   "OPTIONAL" in this document are to be interpreted as described in BCP
+   14 <a href="https://www.rfc-editor.org/info/rfc8174">RFC2119</a> when, and only when, they appear in all
+   capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶</a></p>
+<p id="section-2-2">The following terms, derived from <a href="https://oag.ca.gov/privacy/ccpa">CCPA</a>, <a href="https://gdpr.eu/">GDPR</a> and <a href="https://datatracker.ietf.org/doc/draft-james-privacy-primer-vcon/">privacy-primer-vcon</a>, are used throughout the document:<a href="#section-2-2" class="pilcrow">¶</a></p>
+<p id="section-2-3"><strong>Conserver</strong>: A vCon workflow engine that ingests vCons, routing them for processing and enhancements. A conserver doesn't store a vCon, rather it processes the vCon for transcription, sentiment, integrity protection on egress, verification on ingress, retrieving it from, and saving it to a vCon Registry.<a href="#section-2-3" class="pilcrow">¶</a></p>
+<p id="section-2-4"><strong>Data Subject</strong>: The individual(s) whose personal information is processed (also referred to as the "consumer" in many personal data privacy laws).<a href="#section-2-4" class="pilcrow">¶</a></p>
+<p id="section-2-5"><strong>Data Originator</strong>: The Entity that records and initiates the vCon,
+identifying the parties, including the media of the conversation.
+For a phone call, this may include the phone numbers and the audio
+recording.  For internet-based calls, such as Microsoft Teams, Zoom,
+Google meet, this may include emails and audio/video recording.  The
+Data Originator is a facilitator with access to the content of the
+call. This document addresses the instance where the Data Originator is a data processor under the applicable data privacy laws, collecting and processing data on behalf of a Data Controller. However, Data Originators may also act as Data Controllers when collecting and processing data for their own purposes. This document does not address such an instance, and implementers will need to adjust the technical process accordingly. In general, Data Originators may be required to collect consent by applicable law when acting as Data Controllers and by the relevant data processing agreements with Data Controllers when acting as Data Processors. .  One or all of the
+Data Subjects must initiate consent, giving the Data Originator the
+right to record the conversation, which may be the Data Controller's
+responsibility to identify.<a href="#section-2-5" class="pilcrow">¶</a></p>
+<p id="section-2-6"><strong>Data Controller</strong>: An Entity or individual with decision-making
+authority over data processing who determines the purposes and
+methods of data processing, bears primary responsibility under
+privacy laws and is the main target of most privacy and data
+protection regulations. Under most data privacy laws, Data Controllers are required to enter into data processing agreements with their Data Processors, detailing the rules for data collection and processing in accordance with applicable laws.<a href="#section-2-6" class="pilcrow">¶</a></p>
+<p id="section-2-7"><strong>Data Processor</strong>: An individual or an Entity, which processes personal data on behalf of the Data Controller. It is often a third-party service provider who processes
+data on behalf of the data controller.  Under HIPAA
+data processors are referred to as "business associates." Data processors may be hired for specialized tasks or to improve efficiency; can subcontract to other processors, creating a chain of responsibility; must operate within the scope defined by the data controller; and are expected to maintain trust and adhere to the controller's guidelines. A Conserver often calls out to Data Processors for Transcription, Sentiment Analysis, Fraud Detection, email/text messaging.<a href="#section-2-7" class="pilcrow">¶</a></p>
+<p id="section-2-8"><em>Processing</em>: Any operation or set of operations which is performed on personal data or on sets of personal data. Among other things, this includes collection, storage, use, disclosure, and deletion.<a href="#section-2-8" class="pilcrow">¶</a></p>
+<p id="section-2-9"><em>Personal Data</em>: any information relating to an identified or identifiable Data Subject, including a name, an identification number, location data, an online identifier or to one or more factors specific to the physical, physiological, genetic, mental, economic, cultural or social identity of the Data Subject.<a href="#section-2-9" class="pilcrow">¶</a></p>
+<p id="section-2-10"><strong>Entity</strong>: A generic reference to companies, groups or individuals
+that may share, alter, or use a vCon.  An Entity may be a Data
+Originator, Data Controller, Data Processor or some other role that
+has not yet been defined that participates in the possession and/or
+processing of a vCon.<a href="#section-2-10" class="pilcrow">¶</a></p>
+<p id="section-2-11"><strong>Party</strong>: A party, or participant of a vCon, as identified in the vCon draft.<a href="#section-2-11" class="pilcrow">¶</a></p>
+<p id="section-2-12"><strong>SCITT Transparency Service</strong>: An append-only ledger for integrity protecting vCons, ensuring the state of a vCon is known at a point in time for conformance to governance and regulatory requirements.<a href="#section-2-12" class="pilcrow">¶</a></p>
+<p id="section-2-13"><strong>vCon Registry</strong>: A storage service, capable of storing vCons, including rich metadata and larger attachments including audio and video recordings.<a href="#section-2-13" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="vcon-lifecycle">
+<section id="section-3">
+      <h2 id="name-vcon-lifecycle">
+<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-vcon-lifecycle" class="section-name selfRef">vCon Lifecycle</a>
+      </h2>
+<div id="example-use-case-consent-management">
+<section id="section-3.1">
+        <h3 id="name-example-use-case-consent-ma">
+<a href="#section-3.1" class="section-number selfRef">3.1. </a><a href="#name-example-use-case-consent-ma" class="section-name selfRef">Example Use Case: Consent Management</a>
+        </h3>
+<p id="section-3.1-1">The example use case, consent management, has the following requirements, all considered necessary to fulfill the proper sharing of personal information responsibly:<a href="#section-3.1-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3.1-2.1">
+            <p id="section-3.1-2.1.1">As an individual, I wish to express my data subject rights to express my consent for various purposes, and to withdraw the same.<a href="#section-3.1-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-3.1-2.2">
+            <p id="section-3.1-2.2.1">As a member of an organization, I want to operationally assure that the processing of personal data is within the consent I gained from the data subject, and to safely record those activities to provide to both data subjects and governance bodies.<a href="#section-3.1-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-3.1-2.3">
+            <p id="section-3.1-2.3.1">As a regulator, I wish to have a measurement system to support compliance, bias and regulatory enforcement of policy.<a href="#section-3.1-2.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-3.1-2.4">
+            <p id="section-3.1-2.4.1">As a technologist, I wish to maintain the integrity of conversational pipelines, maintaining the trust both stakeholders and data subjects have in the trust and transparency of the process.<a href="#section-3.1-2.4.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+</section>
+</div>
+<div id="vcon-lifecycle-scope">
+<section id="section-3.2">
+        <h3 id="name-vcon-lifecycle-scope">
+<a href="#section-3.2" class="section-number selfRef">3.2. </a><a href="#name-vcon-lifecycle-scope" class="section-name selfRef">vCon Lifecycle Scope</a>
+        </h3>
+<div id="creation-distribution-and-deletion">
+<section id="section-3.2.1">
+          <h4 id="name-creation-distribution-and-d">
+<a href="#section-3.2.1" class="section-number selfRef">3.2.1. </a><a href="#name-creation-distribution-and-d" class="section-name selfRef">Creation, Distribution and Deletion</a>
+          </h4>
+<p id="section-3.2.1-1">The vCon lifecycle comprises a series of phases from creation through distribution to deletion. Tracking these phases enables fundamental privacy rights, such as the right to know how your data was processed, and secures AI supply chains by establishing provenance and guaranteeing integrity.<a href="#section-3.2.1-1" class="pilcrow">¶</a></p>
+<p id="section-3.2.1-2">The phases of a vCon's life include:<a href="#section-3.2.1-2" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.2.1-3">
+<pre>
++----------------+     +----------------+     +----------------+
+| 1. vConCreated |----&gt;| 2. Recording   |----&gt;| 3. vConSent    |
+|                |     |    Added       |     |                |
++----------------+     +----------------+     +----------------+
+                                                      |
+                                                      v
++----------------+     +----------------+     +----------------+
+| 6. vConSentTo  |&lt;----| 5. vConEnhanced|&lt;----| 4. vConReceived|
+|    Processors  |     |                |     |                |
++----------------+     +----------------+     +----------------+
+        |
+        v
++----------------+     +----------------+
+| 7. Data        |----&gt;| 8. vConDeletion|
+|    Processing  |     |                |
++----------------+     +----------------+
+</pre><a href="#section-3.2.1-3" class="pilcrow">¶</a>
+</div>
+<ol start="1" type="1" class="normal type-1" id="section-3.2.1-4">
+<li id="section-3.2.1-4.1">
+              <p id="section-3.2.1-4.1.1"><strong>vConCreated</strong>: The call completes, and a vCon is created with call metadata stored in the vCon Registry.<a href="#section-3.2.1-4.1.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-3.2.1-4.2">
+              <p id="section-3.2.1-4.2.1"><strong>RecordingAdded</strong>: The actual recording is saved and added to the attachments section of the vCon.<a href="#section-3.2.1-4.2.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-3.2.1-4.3">
+              <p id="section-3.2.1-4.3.1"><strong>vConSent</strong>: The Data Originator sends the vCon to the Data Controller with integrity protection using SCITT.<a href="#section-3.2.1-4.3.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-3.2.1-4.4">
+              <p id="section-3.2.1-4.4.1"><strong>vConReceived</strong>: The Data Controller receives the vCon and records this in the SCITT Transparency Service.<a href="#section-3.2.1-4.4.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-3.2.1-4.5">
+              <p id="section-3.2.1-4.5.1"><strong>vConEnhanced</strong>: The Data Controller adds transcription and license information and identifies themselves.<a href="#section-3.2.1-4.5.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-3.2.1-4.6">
+              <p id="section-3.2.1-4.6.1"><strong>vConSentToProcessors</strong>: The Data Controller sends the vCon to relevant Data Processors.<a href="#section-3.2.1-4.6.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-3.2.1-4.7">
+              <p id="section-3.2.1-4.7.1"><strong>Data Processing</strong>: Value-added services are performed on the vCon data.<a href="#section-3.2.1-4.7.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-3.2.1-4.8">
+              <p id="section-3.2.1-4.8.1"><strong>vConDeletion</strong>: The vCon is deleted when no longer needed, when consent is revoked, or when it expires.<a href="#section-3.2.1-4.8.1" class="pilcrow">¶</a></p>
+</li>
+          </ol>
+</section>
+</div>
+<div id="digital-rights-management">
+<section id="section-3.2.2">
+          <h4 id="name-digital-rights-management">
+<a href="#section-3.2.2" class="section-number selfRef">3.2.2. </a><a href="#name-digital-rights-management" class="section-name selfRef">Digital Rights Management</a>
+          </h4>
+<p id="section-3.2.2-1">Interwoven with the vCon lifecycle is consent management.  A modern
+consent model is envisioned: consent is gathered by the Data
+Controller (or the Data Originator acting as a data processor on behalf of the Data Controller) for particular purposes (such as training or sharing) and
+can be withdrawn by the Data Subject on demand.  This withdrawal may
+result in revoking the vCon or modifying it to remove non-consenting
+portions.<a href="#section-3.2.2-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.2.2-2">
+<pre>
++------------------+     +------------------+     +------------------+
+| 1. ConsentTo     |----&gt;| 2. ConsentFor    |----&gt;| 3. Consent       |
+|    Record        |     |    Purpose       |     |    Recorded      |
++------------------+     +------------------+     +------------------+
+                                                           |
+                                                           v
++------------------+     +------------------+     +------------------+
+| 6. RevokeRequest |&lt;----| 5. ConsentReview |&lt;----| 4. ConsentReceipt|
+|    Processing    |     |    Revocation    |     |    Sent          |
++------------------+     +------------------+     +------------------+
+</pre><a href="#section-3.2.2-2" class="pilcrow">¶</a>
+</div>
+<p id="section-3.2.2-3">Lifecycle events in Digital Rights Management include:<a href="#section-3.2.2-3" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-3.2.2-4">
+<li id="section-3.2.2-4.1">
+              <p id="section-3.2.2-4.1.1"><strong>ConsentToRecord</strong>: Consent is requested from the Data Subject to record the conversation.<a href="#section-3.2.2-4.1.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-3.2.2-4.2">
+              <p id="section-3.2.2-4.2.1"><strong>ConsentForPurpose</strong>: Confirmation of consent for specific purposes (e.g., "sales followup") is obtained.<a href="#section-3.2.2-4.2.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-3.2.2-4.3">
+              <p id="section-3.2.2-4.3.1"><strong>ConsentRecorded</strong>: The Data Controller records where consent was confirmed in the transcript or recording.<a href="#section-3.2.2-4.3.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-3.2.2-4.4">
+              <p id="section-3.2.2-4.4.1"><strong>ConsentReceipt Sent</strong>: Notification is sent to Data Subject(s) with a link to review consent details.<a href="#section-3.2.2-4.4.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-3.2.2-4.5">
+              <p id="section-3.2.2-4.5.1"><strong>ConsentReview/Revocation</strong>: Data Subject can review or choose to revoke consent at any time.<a href="#section-3.2.2-4.5.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-3.2.2-4.6">
+              <p id="section-3.2.2-4.6.1"><strong>RevokeRequestProcessing</strong>: If consent is revoked, the request is processed and communicated to all parties.<a href="#section-3.2.2-4.6.1" class="pilcrow">¶</a></p>
+</li>
+          </ol>
+</section>
+</div>
+<div id="amendment-of-existing-vcons">
+<section id="section-3.2.3">
+          <h4 id="name-amendment-of-existing-vcons">
+<a href="#section-3.2.3" class="section-number selfRef">3.2.3. </a><a href="#name-amendment-of-existing-vcons" class="section-name selfRef">Amendment of Existing vCons</a>
+          </h4>
+<p id="section-3.2.3-1">Under normal circumstances, vCons may be amended. For example, at creation time, parties to a vCon may be verified through methods such as OAuth. However, if account credentials are later found to be compromised, the verification status may need revision. Party verification issues often trigger "Rights to Correct" requests and are fundamental to responsible data rights management. Other enhancements and modifications may occur for security reasons, future processing needs, or in response to regulatory changes.<a href="#section-3.2.3-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.2.3-2">
+<pre>
++----------------+     +----------------+     +----------------+
+| 1. DialogAdded |----&gt;| 2. vConProcessed|----&gt;| 3. Data       |
+|                |     |                |     |    Redaction   |
++----------------+     +----------------+     +----------------+
+</pre><a href="#section-3.2.3-2" class="pilcrow">¶</a>
+</div>
+<p id="section-3.2.3-3">Events that may be recorded on the distributed ledger include:<a href="#section-3.2.3-3" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-3.2.3-4">
+<li id="section-3.2.3-4.1">
+              <p id="section-3.2.3-4.1.1"><strong>DialogAdded</strong>: A dialog is saved and added to the vCon.<a href="#section-3.2.3-4.1.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-3.2.3-4.2">
+              <p id="section-3.2.3-4.2.1"><strong>vConProcessed</strong>: The Data Controller processes the vCon.<a href="#section-3.2.3-4.2.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-3.2.3-4.3">
+              <p id="section-3.2.3-4.3.1"><strong>Data Redaction</strong>: Data Processors delete the data or redact the Data Subject.<a href="#section-3.2.3-4.3.1" class="pilcrow">¶</a></p>
+</li>
+          </ol>
+</section>
+</div>
+</section>
+</div>
+</section>
+</div>
+<div id="detailed-use-case">
+<section id="section-4">
+      <h2 id="name-detailed-use-case">
+<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-detailed-use-case" class="section-name selfRef">Detailed Use Case</a>
+      </h2>
+<div id="vcon-create-consent-and-share">
+<section id="section-4.1">
+        <h3 id="name-vcon-create-consent-and-sha">
+<a href="#section-4.1" class="section-number selfRef">4.1. </a><a href="#name-vcon-create-consent-and-sha" class="section-name selfRef">vCon Create, Consent and Share</a>
+        </h3>
+<div class="alignLeft art-text artwork" id="section-4.1-1">
+<pre>
+    +-------------------+                      +-------------------+
+    |  Data Originator  |                      |  Data Controller  |
+    +---------+---------+                      +---------+---------+
+              |                                          |
+              | 1. Call Initiation                       |
+              |--------&gt;                                 |
+              |                                          |
+              | 2. Consent to Record                     |
+              |--------&gt;                                 |
+              |                                          |
+              | 3. Consent to Share                      |
+              |--------&gt;                                 |
+              |                                          |
+              | 4. vCon Created                          |
+              |                                          |
+              | 5. Recording Added                       |
+              |                                          |
+              | 6. vCon Sent                             |
+              |-----------------------------------------&gt;|
+              |                                          |
+              |                                          | 7. vCon Received
+              |                                          |
+              |                                          | 8. vCon Enhanced
+              |                                          |
+              |                                          | 9. vCon Sent
+              |                                          |--------&gt;
+              |                                          |
+              |                                          |
+    +---------v---------+                      +---------v---------+
+    |  Data Originator  |                      |  Data Controller  |
+    +-------------------+                      +-------------------+
+                                                        |
+                                                        v
+                                               +-------------------+
+                                               |  Data Processor   |
+                                               +---------+---------+
+                                                         |
+                                                         | 10. vCon Received
+                                                         |
+                                                         | 11. Consent Recorded
+                                                         |
+                                                         | 12. vCon Enhanced
+                                                         |
+                                                         | 13. Consent Receipt
+                                                         |    Sent
+                                                         |
+                                                         | 14. Consent Review
+                                                         |
+                                                         | 15. Value-Add
+                                                         |    Services
+                                                         |
+                                               +---------v---------+
+                                               |  Data Processor   |
+                                               +-------------------+
+
+### Data Originator
+
+1. **Initiating Call**: An initiating caller contacts a Data Subject to provide a service.
+2. **Consent to Record**: The initiating caller requests consent to record the call for training purposes.
+3. **Consent to Share**: The call completes, confirming consent for
+the recording to be used for "sales followup", noting that the
+Data Subject can review and revoke consent later. Depending on the types of personal data communicated on the call and the purpose of its processing, the consent request language may need to include additional information.
+4. **vCon Created**: The call completes, the vCon is created, and call metadata is recorded in the vCon Registry.
+5. **Recording Added**: The recording is saved to the vCon Registry, adding it to the vCon's attachments section.
+6. **vCon Sent**: The Data Originator completes their responsibilities and sends the vCon to the Data Controller.
+
+### Data Controller
+
+1. **vCon Received**: The vCon is received from the Data Originator, and a vcon_received operation is recorded in the SCITT Transparency Service.
+2. **vCon Enhanced with License and Data Controller**: The Data Controller adds transcription, specifies the intended license, and identifies themselves as the Data Controller on the vCon.
+3. **vCon Sent**: The Data Controller sends the vCon to the Data Processor(s).
+
+### Data Processor(s)
+
+1. **vCon Received**: The Data Processor validates the vCon's SCITT receipt from the Data Controller.
+2. **Consent Recorded**: The Data Processor records consent confirmation in the SCITT Transparency Service.
+3. **vCon Enhanced**: Sentiment analysis and other enhancements are processed through the Data Processor's Conserver workflows.
+4. **Consent Receipt Sent**: The Data Processor sends notification to the Data Subject(s) with a link to review consent details.
+5. **Consent Review**: The Data Subject(s) can review vCon information at any time and revoke consent if desired.
+6. **Data Processor Value-Add**: The Data Processor performs value-added services for the Data Subject(s).
+
+## Revocation and the Right to Be Forgotten
+
+At any point, a Data Subject can request revocation or the right to be forgotten, requiring all vCon possessors to act accordingly. vCons must be tracked for where they were sent and who to contact when a Data Subject makes such requests. The SCITT Transparency Service maintains metadata about ingested vCons, ensuring integrity and inclusion protection.
+
+</pre><a href="#section-4.1-1" class="pilcrow">¶</a>
+</div>
+<div class="alignLeft art-text artwork" id="section-4.1-2">
+<pre>
++-------------------+                      +-------------------+
+|   Data Subject    |                      |  Data Controller  |
++---------+---------+                      +---------+---------+
+          |                                          |
+          | 1. Revoke Consent                        |
+          |--------&gt;                                 |
+          |                                          |
+          | 2. Revoke Request Sent                   |
+          |-----------------------------------------&gt;|
+          |                                          |
+          |                                          | 3. Act on Revocation
+          |                                          |
+          |                                          | 4. Send Request to
+          |                                          |    All Processors
+          |                                          |--------&gt;
+          |                                          |
++---------v---------+                      +---------v---------+
+|   Data Subject    |                      |  Data Controller  |
++-------------------+                      +-------------------+
+                                                    |
+                                                    v
+                                           +-------------------+
+                                           |  Data Processor   |
+                                           +---------+---------+
+                                                     |
+                                                     | 5. Deletion of Data
+                                                     |
+                                           +---------v---------+
+                                           |  Data Processor   |
+                                           +-------------------+ ~~~
+</pre><a href="#section-4.1-2" class="pilcrow">¶</a>
+</div>
+<div id="data-subject">
+<section id="section-4.1.1">
+          <h4 id="name-data-subject">
+<a href="#section-4.1.1" class="section-number selfRef">4.1.1. </a><a href="#name-data-subject" class="section-name selfRef">Data Subject</a>
+          </h4>
+<ol start="1" type="1" class="normal type-1" id="section-4.1.1-1">
+<li id="section-4.1.1-1.1">
+              <p id="section-4.1.1-1.1.1"><strong>Revoke Consent</strong>: The Data Subject clicks a link included in all communications between the Data Processor and the Data Subject(s).<a href="#section-4.1.1-1.1.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-4.1.1-1.2">
+              <p id="section-4.1.1-1.2.1"><strong>Revoke Request Sent</strong>: If the vcon_consent_revoked operation was handled by the Data Processor, they MUST contact the Data Controller to communicate the Data Subject's intent.<a href="#section-4.1.1-1.2.1" class="pilcrow">¶</a></p>
+</li>
+          </ol>
+</section>
+</div>
+<div id="data-controller-revocation">
+<section id="section-4.1.2">
+          <h4 id="name-data-controller-revocation">
+<a href="#section-4.1.2" class="section-number selfRef">4.1.2. </a><a href="#name-data-controller-revocation" class="section-name selfRef">Data Controller Revocation</a>
+          </h4>
+<ol start="1" type="1" class="normal type-1" id="section-4.1.2-1">
+<li id="section-4.1.2-1.1">
+              <p id="section-4.1.2-1.1.1"><strong>Act on Consent Revocation Request</strong>: The Data Controller receives the vCon Consent Revocation Request and records it on their SCITT Transparency Service.<a href="#section-4.1.2-1.1.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-4.1.2-1.2">
+              <p id="section-4.1.2-1.2.1"><strong>Send Revocation Request to Data Controllers</strong>: If the vCon was sent to other Data Processors, they must communicate the revocation request to any Data Processor that hasn't yet acknowledged it.<a href="#section-4.1.2-1.2.1" class="pilcrow">¶</a></p>
+</li>
+          </ol>
+</section>
+</div>
+<div id="data-processor-revocation">
+<section id="section-4.1.3">
+          <h4 id="name-data-processor-revocation">
+<a href="#section-4.1.3" class="section-number selfRef">4.1.3. </a><a href="#name-data-processor-revocation" class="section-name selfRef">Data Processor Revocation</a>
+          </h4>
+<ol start="1" type="1" class="normal type-1" id="section-4.1.3-1">
+<li id="section-4.1.3-1.1">
+              <p id="section-4.1.3-1.1.1"><strong>Deletion of Data</strong>: Any Data Processor that hasn't yet acted on the request must acknowledge it.<a href="#section-4.1.3-1.1.1" class="pilcrow">¶</a></p>
+</li>
+          </ol>
+</section>
+</div>
+</section>
+</div>
+</section>
+</div>
+<div id="vcon-lifecycle-events">
+<section id="section-5">
+      <h2 id="name-vcon-lifecycle-events">
+<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-vcon-lifecycle-events" class="section-name selfRef">vCon Lifecycle Events</a>
+      </h2>
+<p id="section-5-1">The following events outline important "moments that matter" in a vCon's lifecycle. These events are not intended to be stored within the vCon itself, but rather as operations stored on SCITT to provide context for the vCon's intent at specific points in time:<a href="#section-5-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-5-2.1">
+          <p id="section-5-2.1.1"><strong>vcon_created</strong>: The initial vCon document as first recorded. The vCon may start with a basic structure defining minimal metadata, as recordings or attachments may be added asynchronously upon encoding completion.<a href="#section-5-2.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-5-2.2">
+          <p id="section-5-2.2.1"><strong>vcon_enhanced</strong>: The vCon has been amended or appended. While vCons are considered immutable, information may be amended or appended—previous values exist in the vCon Registry but may be superseded. Amendments may include transcription corrections or consent changes.<a href="#section-5-2.2.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-5-2.3">
+          <p id="section-5-2.3.1"><strong>vcon_sent</strong>: The vCon was sent to an external party. This operation seals the vCon's integrity, recording what was sent, to whom, and when in the SCITT Transparency Service. A SCITT receipt from the receiving service confirms possession.<a href="#section-5-2.3.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-5-2.4">
+          <p id="section-5-2.4.1"><strong>vcon_received</strong>: The vCon was received from an external entity. This documents possession at a specific time, sealing content integrity and returning a SCITT receipt to the sender.<a href="#section-5-2.4.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-5-2.5">
+          <p id="section-5-2.5.1"><strong>vcon_consent_accepted</strong>: One or more parties have consented to the vCon being recorded and shared for its intended purpose. Consent may not be established during initial vCon creation, as the Data Controller, not the Data Originator (infrastructure provider), is responsible for managing Data Subject consent.<a href="#section-5-2.5.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-5-2.6">
+          <p id="section-5-2.6.1"><strong>vcon_consent_revoked</strong>: One or more parties have revoked consent for one or more purposes. Depending on region, license, and regulatory requirements, one revocation may or may not require all Data Processors to act.<a href="#section-5-2.6.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-5-2.7">
+          <p id="section-5-2.7.1"><strong>vcon_party_redacted</strong>: A party to the vCon has been redacted. This differs from consent revocation, as the vCon may remain viable if a party's information can be redacted while maintaining integrity and usefulness.<a href="#section-5-2.7.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-5-2.8">
+          <p id="section-5-2.8.1"><strong>vcon_deleted</strong>: The vCon has been deleted due to an implicit act such as revocation or no longer being needed. When a Data Controller deletes a vCon, they must inform all recipients to either delete it or assume Data Controller responsibilities.<a href="#section-5-2.8.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-5-2.9">
+          <p id="section-5-2.9.1"><strong>vcon_expired</strong>: The vCon has expired due to license terms or compliance requirements. This triggers deletion and notification to all shared entities.<a href="#section-5-2.9.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-5-2.10">
+          <p id="section-5-2.10.1"><strong>vcon_rcvr_purged</strong>: When a vCon is sent from a Data Controller, the receiving Entity may maintain it indefinitely, for a set period, or delete it upon operation completion. If the Entity no longer needs to maintain the vCon, they can delete it and notify the sender.<a href="#section-5-2.10.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+</section>
+</div>
+<div id="security-considerations">
+<section id="section-6">
+      <h2 id="name-security-considerations">
+<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
+      </h2>
+<p id="section-6-1">The security of the vCon lifecycle depends heavily on the integrity and availability of the SCITT Transparency Service. Entities MUST ensure that their SCITT implementations are properly secured and that access controls are in place to prevent unauthorized modifications.<a href="#section-6-1" class="pilcrow">¶</a></p>
+<p id="section-6-2">The handling of personally identifiable information (PII) throughout the vCon lifecycle requires careful consideration of privacy regulations and data protection requirements. Entities MUST implement appropriate technical and organizational measures to protect PII and ensure compliance with applicable regulations.<a href="#section-6-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="privacy-considerations">
+<section id="section-7">
+      <h2 id="name-privacy-considerations">
+<a href="#section-7" class="section-number selfRef">7. </a><a href="#name-privacy-considerations" class="section-name selfRef">Privacy Considerations</a>
+      </h2>
+<p id="section-7-1">This document describes a framework for managing vCons that contain personally identifiable information. Implementers MUST ensure compliance with applicable privacy regulations, including but not limited to GDPR <a href="https://gdpr.eu/">GDPR</a> and CCPA <a href="https://oag.ca.gov/privacy/ccpa">CCPA</a>.<a href="#section-7-1" class="pilcrow">¶</a></p>
+<p id="section-7-2">The framework provides mechanisms for consent management and data subject rights, but implementers are responsible for ensuring that their implementations properly respect and enforce these rights.<a href="#section-7-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="iana-considerations">
+<section id="section-8">
+      <h2 id="name-iana-considerations">
+<a href="#section-8" class="section-number selfRef">8. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
+      </h2>
+<p id="section-8-1">This document has no IANA actions.<a href="#section-8-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="references">
+<section id="section-9">
+      <h2 id="name-references">
+<a href="#section-9" class="section-number selfRef">9. </a><a href="#name-references" class="section-name selfRef">References</a>
+      </h2>
+<div id="normative-references">
+<section id="section-9.1">
+        <h3 id="name-normative-references">
+<a href="#section-9.1" class="section-number selfRef">9.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+      </h3>
+</section>
+</div>
+<div id="informative-references">
+<section id="section-9.2">
+        <h3 id="name-informative-references">
+<a href="#section-9.2" class="section-number selfRef">9.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
+      </h3>
+</section>
+</div>
+</section>
+</div>
+<div id="sec-informative-references">
+<section id="section-10">
+      <h2 id="name-informative-references-2">
+<a href="#section-10" class="section-number selfRef">10. </a><a href="#name-informative-references-2" class="section-name selfRef">Informative References</a>
+      </h2>
+<dl class="references">
+<dt id="CBOR">[CBOR]</dt>
+      <dd>
+<span class="refAuthor">Bormann, C.</span> and <span class="refAuthor">P. Hoffman</span>, <span class="refTitle">"Concise Binary Object Representation (CBOR)"</span>, <span class="seriesInfo">STD 94</span>, <span class="seriesInfo">RFC 8949</span>, <span class="seriesInfo">DOI 10.17487/RFC8949</span>, <time datetime="2020-12" class="refDate">December 2020</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8949">https://www.rfc-editor.org/rfc/rfc8949</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="CDDL">[CDDL]</dt>
+      <dd>
+<span class="refAuthor">Birkholz, H.</span>, <span class="refAuthor">Vigano, C.</span>, and <span class="refAuthor">C. Bormann</span>, <span class="refTitle">"Concise Data Definition Language (CDDL): A Notational Convention to Express Concise Binary Object Representation (CBOR) and JSON Data Structures"</span>, <span class="seriesInfo">RFC 8610</span>, <span class="seriesInfo">DOI 10.17487/RFC8610</span>, <time datetime="2019-06" class="refDate">June 2019</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8610">https://www.rfc-editor.org/rfc/rfc8610</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="CDR">[CDR]</dt>
+      <dd>
+<span class="refAuthor">ITU</span>, <span class="refTitle">"Recommendation Q.825: Specification of TMN applications at the Q3 interface: Call detail recording"</span>, <span>n.d.</span>, <span>&lt;<a href="https://www.itu.int/rec/T-REC-Q.825">https://www.itu.int/rec/T-REC-Q.825</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="GEOPRIV">[GEOPRIV]</dt>
+      <dd>
+<span class="refAuthor">Peterson, J.</span>, <span class="refTitle">"A Presence-based GEOPRIV Location Object Format"</span>, <span class="seriesInfo">RFC 4119</span>, <span class="seriesInfo">DOI 10.17487/RFC4119</span>, <time datetime="2005-12" class="refDate">December 2005</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc4119">https://www.rfc-editor.org/rfc/rfc4119</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="GZIP">[GZIP]</dt>
+      <dd>
+<span class="refAuthor">Deutsch, P.</span>, <span class="refTitle">"GZIP file format specification version 4.3"</span>, <span class="seriesInfo">RFC 1952</span>, <span class="seriesInfo">DOI 10.17487/RFC1952</span>, <time datetime="1996-05" class="refDate">May 1996</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc1952">https://www.rfc-editor.org/rfc/rfc1952</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="HTTPS">[HTTPS]</dt>
+      <dd>
+<span class="refAuthor">Fielding, R., Ed.</span>, <span class="refAuthor">Nottingham, M., Ed.</span>, and <span class="refAuthor">J. Reschke, Ed.</span>, <span class="refTitle">"HTTP Semantics"</span>, <span class="seriesInfo">STD 97</span>, <span class="seriesInfo">RFC 9110</span>, <span class="seriesInfo">DOI 10.17487/RFC9110</span>, <time datetime="2022-06" class="refDate">June 2022</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9110">https://www.rfc-editor.org/rfc/rfc9110</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="IANA-COSE-ALG">[IANA-COSE-ALG]</dt>
+      <dd>
+<span class="refTitle">"COSE Algorithms"</span>, <span>n.d.</span>, <span>&lt;<a href="&lt;https://www.iana.org/assignments/cose/cose.xhtml&gt;">&lt;https://www.iana.org/assignments/cose/cose.xhtml&gt;</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="ISOBMFF">[ISOBMFF]</dt>
+      <dd>
+<span class="refTitle">"Information technology -- Coding of audio-visual objects -- Part 12: ISO base media file format"</span>, <span class="refContent">ISO/IEC 14496-12:2022</span>, <time datetime="2022-01" class="refDate">January 2022</time>, <span>&lt;<a href="https://www.iso.org/standard/83102.html">https://www.iso.org/standard/83102.html</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="JMAP">[JMAP]</dt>
+      <dd>
+<span class="refAuthor">Jenkins, N.</span> and <span class="refAuthor">C. Newman</span>, <span class="refTitle">"The JSON Meta Application Protocol (JMAP)"</span>, <span class="seriesInfo">RFC 8620</span>, <span class="seriesInfo">DOI 10.17487/RFC8620</span>, <time datetime="2019-07" class="refDate">July 2019</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8620">https://www.rfc-editor.org/rfc/rfc8620</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="JSON">[JSON]</dt>
+      <dd>
+<span class="refAuthor">Bray, T., Ed.</span>, <span class="refTitle">"The JavaScript Object Notation (JSON) Data Interchange Format"</span>, <span class="seriesInfo">STD 90</span>, <span class="seriesInfo">RFC 8259</span>, <span class="seriesInfo">DOI 10.17487/RFC8259</span>, <time datetime="2017-12" class="refDate">December 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8259">https://www.rfc-editor.org/rfc/rfc8259</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="JWE">[JWE]</dt>
+      <dd>
+<span class="refAuthor">Jones, M.</span> and <span class="refAuthor">J. Hildebrand</span>, <span class="refTitle">"JSON Web Encryption (JWE)"</span>, <span class="seriesInfo">RFC 7516</span>, <span class="seriesInfo">DOI 10.17487/RFC7516</span>, <time datetime="2015-05" class="refDate">May 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7516">https://www.rfc-editor.org/rfc/rfc7516</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="JWK">[JWK]</dt>
+      <dd>
+<span class="refAuthor">Jones, M.</span>, <span class="refTitle">"JSON Web Key (JWK)"</span>, <span class="seriesInfo">RFC 7517</span>, <span class="seriesInfo">DOI 10.17487/RFC7517</span>, <time datetime="2015-05" class="refDate">May 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7517">https://www.rfc-editor.org/rfc/rfc7517</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="JWS">[JWS]</dt>
+      <dd>
+<span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Bradley, J.</span>, and <span class="refAuthor">N. Sakimura</span>, <span class="refTitle">"JSON Web Signature (JWS)"</span>, <span class="seriesInfo">RFC 7515</span>, <span class="seriesInfo">DOI 10.17487/RFC7515</span>, <time datetime="2015-05" class="refDate">May 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7515">https://www.rfc-editor.org/rfc/rfc7515</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="JWT">[JWT]</dt>
+      <dd>
+<span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Bradley, J.</span>, and <span class="refAuthor">N. Sakimura</span>, <span class="refTitle">"JSON Web Token (JWT)"</span>, <span class="seriesInfo">RFC 7519</span>, <span class="seriesInfo">DOI 10.17487/RFC7519</span>, <time datetime="2015-05" class="refDate">May 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7519">https://www.rfc-editor.org/rfc/rfc7519</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="MAILTO">[MAILTO]</dt>
+      <dd>
+<span class="refAuthor">Duerst, M.</span>, <span class="refAuthor">Masinter, L.</span>, and <span class="refAuthor">J. Zawinski</span>, <span class="refTitle">"The 'mailto' URI Scheme"</span>, <span class="seriesInfo">RFC 6068</span>, <span class="seriesInfo">DOI 10.17487/RFC6068</span>, <time datetime="2010-10" class="refDate">October 2010</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc6068">https://www.rfc-editor.org/rfc/rfc6068</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="MEDIATYPE">[MEDIATYPE]</dt>
+      <dd>
+<span class="refAuthor">Freed, N.</span>, <span class="refAuthor">Klensin, J.</span>, and <span class="refAuthor">T. Hansen</span>, <span class="refTitle">"Media Type Specifications and Registration Procedures"</span>, <span class="seriesInfo">BCP 13</span>, <span class="seriesInfo">RFC 6838</span>, <span class="seriesInfo">DOI 10.17487/RFC6838</span>, <time datetime="2013-01" class="refDate">January 2013</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc6838">https://www.rfc-editor.org/rfc/rfc6838</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="MIME">[MIME]</dt>
+      <dd>
+<span class="refAuthor">Freed, N.</span> and <span class="refAuthor">N. Borenstein</span>, <span class="refTitle">"Multipurpose Internet Mail Extensions (MIME) Part One: Format of Internet Message Bodies"</span>, <span class="seriesInfo">RFC 2045</span>, <span class="seriesInfo">DOI 10.17487/RFC2045</span>, <time datetime="1996-11" class="refDate">November 1996</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc2045">https://www.rfc-editor.org/rfc/rfc2045</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="PASSporT">[PASSporT]</dt>
+      <dd>
+<span class="refAuthor">Wendt, C.</span> and <span class="refAuthor">J. Peterson</span>, <span class="refTitle">"PASSporT: Personal Assertion Token"</span>, <span class="seriesInfo">RFC 8225</span>, <span class="seriesInfo">DOI 10.17487/RFC8225</span>, <time datetime="2018-02" class="refDate">February 2018</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8225">https://www.rfc-editor.org/rfc/rfc8225</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="PIDF-LO">[PIDF-LO]</dt>
+      <dd>
+<span class="refAuthor">Winterbottom, J.</span>, <span class="refAuthor">Thomson, M.</span>, and <span class="refAuthor">H. Tschofenig</span>, <span class="refTitle">"GEOPRIV Presence Information Data Format Location Object (PIDF-LO) Usage Clarification, Considerations, and Recommendations"</span>, <span class="seriesInfo">RFC 5491</span>, <span class="seriesInfo">DOI 10.17487/RFC5491</span>, <time datetime="2009-03" class="refDate">March 2009</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc5491">https://www.rfc-editor.org/rfc/rfc5491</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="SHA-512">[SHA-512]</dt>
+      <dd>
+<span class="refAuthor">Eastlake 3rd, D.</span> and <span class="refAuthor">T. Hansen</span>, <span class="refTitle">"US Secure Hash Algorithms (SHA and SHA-based HMAC and HKDF)"</span>, <span class="seriesInfo">RFC 6234</span>, <span class="seriesInfo">DOI 10.17487/RFC6234</span>, <time datetime="2011-05" class="refDate">May 2011</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc6234">https://www.rfc-editor.org/rfc/rfc6234</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="SIP-XFER">[SIP-XFER]</dt>
+      <dd>
+<span class="refAuthor">Sparks, R.</span>, <span class="refAuthor">Johnston, A., Ed.</span>, and <span class="refAuthor">D. Petrie</span>, <span class="refTitle">"Session Initiation Protocol (SIP) Call Control - Transfer"</span>, <span class="seriesInfo">BCP 149</span>, <span class="seriesInfo">RFC 5589</span>, <span class="seriesInfo">DOI 10.17487/RFC5589</span>, <time datetime="2009-06" class="refDate">June 2009</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc5589">https://www.rfc-editor.org/rfc/rfc5589</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="SMTP">[SMTP]</dt>
+      <dd>
+<span class="refAuthor">Klensin, J.</span>, <span class="refTitle">"Simple Mail Transfer Protocol"</span>, <span class="seriesInfo">RFC 5321</span>, <span class="seriesInfo">DOI 10.17487/RFC5321</span>, <time datetime="2008-10" class="refDate">October 2008</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc5321">https://www.rfc-editor.org/rfc/rfc5321</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="STIR-PASS">[STIR-PASS]</dt>
+      <dd>
+<span class="refAuthor">Wendt, C.</span> and <span class="refAuthor">J. Peterson</span>, <span class="refTitle">"PASSporT Extension for Rich Call Data"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-stir-passport-rcd-26</span>, <time datetime="2023-06-05" class="refDate">5 June 2023</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-stir-passport-rcd-26">https://datatracker.ietf.org/doc/html/draft-ietf-stir-passport-rcd-26</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="TEL">[TEL]</dt>
+      <dd>
+<span class="refAuthor">Schulzrinne, H.</span>, <span class="refTitle">"The tel URI for Telephone Numbers"</span>, <span class="seriesInfo">RFC 3966</span>, <span class="seriesInfo">DOI 10.17487/RFC3966</span>, <time datetime="2004-12" class="refDate">December 2004</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc3966">https://www.rfc-editor.org/rfc/rfc3966</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="UUID">[UUID]</dt>
+      <dd>
+<span class="refAuthor">Peabody, B.</span> and <span class="refAuthor">K. R. Davis</span>, <span class="refTitle">"New UUID Formats"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-peabody-dispatch-new-uuid-format-04</span>, <time datetime="2022-06-23" class="refDate">23 June 2022</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-peabody-dispatch-new-uuid-format-04">https://datatracker.ietf.org/doc/html/draft-peabody-dispatch-new-uuid-format-04</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="vCard">[vCard]</dt>
+      <dd>
+<span class="refAuthor">Kewisch, P.</span>, <span class="refTitle">"jCard: The JSON Format for vCard"</span>, <span class="seriesInfo">RFC 7095</span>, <span class="seriesInfo">DOI 10.17487/RFC7095</span>, <time datetime="2014-01" class="refDate">January 2014</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7095">https://www.rfc-editor.org/rfc/rfc7095</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="vCon-white-paper">[vCon-white-paper]</dt>
+    <dd>
+<span class="refAuthor">Howe, T.</span>, <span class="refAuthor">Petrie, D.</span>, <span class="refAuthor">Lieberman, M.</span>, and <span class="refAuthor">A. Quayle</span>, <span class="refTitle">"vCon: an Open Standard for Conversation Data"</span>, <span>n.d.</span>, <span>&lt;<a href="https://github.com/vcon-dev/vcon/blob/main/docs/vCons_%20an%20Open%20Standard%20for%20Conversation%20Data.pdf">https://github.com/vcon-dev/vcon/blob/main/docs/vCons_%20an%20Open%20Standard%20for%20Conversation%20Data.pdf</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+</div>
+<div id="authors-addresses">
+<section id="appendix-A">
+      <h2 id="name-authors-addresses">
+<a href="#name-authors-addresses" class="section-name selfRef">Authors' Addresses</a>
+      </h2>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Thomas McCarthy-Howe</span></div>
+<div dir="auto" class="left"><span class="org">Strolid, Inc.</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:thomas.howe@strolid.com" class="email">thomas.howe@strolid.com</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">S. Lasker</span></div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Diana James</span></div>
+<div dir="auto" class="left"><span class="org">Marashlian &amp; Donahue, PLLC</span></div>
+</address>
+</section>
+</div>
+<script>const toc = document.getElementById("toc");
+toc.querySelector("h2").addEventListener("click", e => {
+  toc.classList.toggle("active");
+});
+toc.querySelector("nav").addEventListener("click", e => {
+  toc.classList.remove("active");
+});
+</script>
+</body>
+</html>
