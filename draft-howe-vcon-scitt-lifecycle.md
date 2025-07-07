@@ -31,7 +31,7 @@ venue:
   mail: "vcon@ietf.org"
   arch: "https://mailarchive.ietf.org/arch/browse/vcon/"
   github: "howethomas/vcon-howe-scitt-lifecycle"
-  latest: https://example.com/LATEST
+  latest: "https://howethomas.github.io/vcon-howe-scitt-lifecycle/draft-howe-vcon-scitt-lifecycle.html"
 
 author:
  -
@@ -221,7 +221,7 @@ Throughout this workflow, no single entity can prove that other entities perform
 
 
 A wide range of industries and business scenarios benefit from virtual conversations, making them valuable across countless organizations.The breadth of industries and scenarios that benefit from virtual
-conversations spans numerous companies.  
+conversations spans numerous companies.
 The power of this technology lies in enabling cross-conversation collaboration. By implementing a standards-based approach, both collaborative and competitive companies can easily integrate with solutions for transcription, consent management, and CRM integration.
 
 Packaging conversations and associated metadata in the vCon format provides a standardized means to communicate what has been sent. Due to the personally identifiable information and digital fingerprinting in vCons, it's critical to understand and adhere to regulatory requirements for PII management. Defining and implementing a standard provides stability in information management throughout the lifecycle.
@@ -346,7 +346,7 @@ consent model is envisioned: consent is gathered by the Data
 Controller (or the Data Originator acting as a data processor on behalf of the Data Controller) for particular purposes (such as training or sharing) and
 can be withdrawn by the Data Subject on demand.  This withdrawal may
 result in revoking the vCon or modifying it to remove non-consenting
-portions. 
+portions.
 
 
 ~~~
