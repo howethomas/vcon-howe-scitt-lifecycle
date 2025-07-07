@@ -3,7 +3,7 @@ title: "vCon Lifecycle Management using SCITT"
 abbrev: "vCon Lifecycle"
 category: info
 
-docname: draft-howe-vcon-scitt-lifecycle-latest
+docname: draft-howe-vcon-scitt-lifecycle-00
 submissiontype: IETF  # also: "independent", "editorial", "IAB", or "IRTF"
 number:
 date:
