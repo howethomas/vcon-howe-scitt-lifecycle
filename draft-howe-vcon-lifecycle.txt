@@ -4,7 +4,7 @@
 
 vcon                                                    T. McCarthy-Howe
 Internet-Draft                                             Strolid, Inc.
-Intended status: Informational                                 S. Lasker
+Intended status: Standards Track                               S. Lasker
 Expires: 22 January 2026                                     Independent
                                                                 D. James
                                               Marashlian & Donahue, PLLC
