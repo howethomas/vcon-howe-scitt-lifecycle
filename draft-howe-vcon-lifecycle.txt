@@ -2,49 +2,48 @@
 
 
 
-Virtualized Conversations                               T. McCarthy-Howe
+vcon                                                    T. McCarthy-Howe
 Internet-Draft                                             Strolid, Inc.
 Intended status: Informational                                 S. Lasker
-Expires: 8 January 2026                                                 
+Expires: 22 January 2026                                     Independent
                                                                 D. James
                                               Marashlian & Donahue, PLLC
-                                                             7 July 2025
+                                                            21 July 2025
 
 
                  vCon Lifecycle Management using SCITT
-                 draft-howe-vcon-scitt-lifecycle-latest
+                    draft-howe-vcon-lifecycle-latest
 
 Abstract
 
    This document proposes using the SCITT (Supply Chain, Integrity,
-   Transparency, and Trust) protocol to manage the lifecycle of Virtual
-   Conversations (vCons), which are standardized containers for
-   conversational data like call recordings, transcripts, and chat logs.
-   While vCons enable capturing and sharing conversation details for AI
-   analysis and business purposes, they lack mechanisms for proving
-   compliance with privacy regulations and consent management.  SCITT
-   addresses this by providing an immutable, append-only transparency
-   ledger that records key lifecycle events—from vCon creation and
-   consent management to call recording, as well as data processing and
-   deletion—enabling entities to demonstrate regulatory compliance and
-   maintain trust across distributed systems.  The framework
-   specifically addresses consent management challenges under
-   regulations like GDPR and CCPA, where consent can be revoked at any
-   time, requiring coordinated deletion across all parties that have
-   received the vCon.  By combining vCons with SCITT, organizations can
-   build scalable, transparent governance systems that protect personal
-   data rights while enabling responsible use of conversational data for
-   AI and business applications.
+   Transparency, and Trust) protocol to record, communicate and
+   coordinate the lifecycle of Virtual Conversations (vCons), which are
+   standardized containers for conversational data like call recordings,
+   transcripts, and chat logs.  While vCons enable capturing and sharing
+   conversation details for AI analysis and business purposes, they lack
+   mechanisms for proving compliance with privacy regulations and
+   consent management.  SCITT addresses this by providing an immutable,
+   append-only transparency ledger that records key lifecycle
+   events—from vCon creation and consent management to call recording,
+   as well as data processing and deletion—enabling entities to
+   demonstrate regulatory compliance and maintain trust across
+   distributed systems.  The framework specifically addresses consent
+   management challenges under regulations like GDPR and CCPA, where
+   consent can be revoked at any time, requiring coordinated deletion
+   across all parties that have received the vCon.  By combining vCons
+   with SCITT, organizations can build scalable, transparent governance
+   systems that protect personal data rights while enabling responsible
+   use of conversational data for AI and business applications.
 
 About This Document
 
    This note is to be removed before publishing as an RFC.
 
    The latest revision of this draft can be found at
-   https://howethomas.github.io/vcon-howe-scitt-lifecycle/draft-howe-
-   vcon-scitt-lifecycle.html.  Status information for this document may
-   be found at https://datatracker.ietf.org/doc/draft-howe-vcon-scitt-
-   lifecycle/.
+   https://howethomas.github.io/vcon-dev/draft-howe-vcon-lifecycle.html.
+   Status information for this document may be found at
+   https://datatracker.ietf.org/doc/draft-howe-vcon-lifecycle/.
 
    Discussion of this document takes place on the Virtualized
    Conversations Working Group mailing list (mailto:vcon@ietf.org),
@@ -52,7 +51,7 @@ About This Document
    Subscribe at https://www.ietf.org/mailman/listinfo/vcon/.
 
    Source for this draft and an issue tracker can be found at
-   https://github.com/howethomas/vcon-howe-scitt-lifecycle.
+   https://github.com/vcon-dev/draft-howe-vcon-lifecycle.
 
 Status of This Memo
 
@@ -69,7 +68,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 8 January 2026.
+   This Internet-Draft will expire on 22 January 2026.
 
 Copyright Notice
 
@@ -100,9 +99,13 @@ Table of Contents
        3.2.3.  Amendment of Existing vCons
    4.  Detailed Use Case
      4.1.  vCon Create, Consent and Share
-       4.1.1.  Data Subject
-       4.1.2.  Data Controller Revocation
-       4.1.3.  Data Processor Revocation
+       4.1.1.  Data Originator
+       4.1.2.  Data Controller
+       4.1.3.  Data Processor(s)
+     4.2.  Revocation and the Right to Be Forgotten
+       4.2.1.  Data Subject
+       4.2.2.  Data Controller Revocation
+       4.2.3.  Data Processor Revocation
    5.  vCon Lifecycle Events
    6.  Security Considerations
    7.  Privacy Considerations
@@ -111,6 +114,7 @@ Table of Contents
      9.1.  Normative References
      9.2.  Informative References
    10. Informative References
+   Appendix A.  Acknowledgments
    Authors' Addresses
 
 1.  Introduction
@@ -174,7 +178,8 @@ Table of Contents
    by Design principles, multijurisdictional business operations, and
    the ever-changing privacy laws.  Please see the privacy-primer-vcon
    (https://datatracker.ietf.org/doc/draft-james-privacy-primer-vcon/)
-   for more information on consent.
+   for more information on consent and other data subject protection
+   concepts.
 
    In all of these cases, the ability to define and express the
    processing of conversations depends on the ability to authoritatively
@@ -196,14 +201,14 @@ Table of Contents
    *  the sharing or deletion in response to the same digital rights
 
    For this document and for purposes of illustration, consent will be
-   used as an example.  Proper consent management is fundamental to the
-   responsible protection of data and the ability to leverage that data.
-   Consent granted by the data subject of a vCon also needs to be stored
-   and passed, exactly like the other information contained in a vCon.
-   Unlike the rest of the information contained, the gathered consent is
-   expressly not immutable.  Consent, when gathered for a purpose, can
-   also be revoked by the data subject at any time and surely after a
-   vCon has been shared for analysis.
+   used as an example use case.  Proper consent management is
+   fundamental to the responsible protection of data and the ability to
+   leverage that data.  Consent granted by the data subject of a vCon
+   also needs to be stored and passed, exactly like the other
+   information contained in a vCon.  Unlike the rest of the information
+   contained, the gathered consent is expressly not immutable.  Consent,
+   when gathered for a purpose, can also be revoked by the data subject
+   at any time and surely after a vCon has been shared for analysis.
 
    Multiple regulations, including the US-born California Consumer
    Protection Act (CCPA) CCPA (https://oag.ca.gov/privacy/ccpa) and the
@@ -234,7 +239,10 @@ Table of Contents
    entities performed the required actions.  However, by auditing the
    SCITT Ledgers of all involved parties, entities can prove they acted
    on the acknowledged consent and intent of the Data Subject, holding
-   other entities accountable for performing required operations.
+   other entities accountable for performing required operations.  In
+   short, this audit can help to prove that "the good guys did the right
+   thing", to measure the compliance of those outside this architecture
+   who may have chosen different methods of compliance assurance.
 
 1.2.  Standards-Based Interoperability
 
@@ -573,78 +581,115 @@ Table of Contents
                                                |  Data Processor   |
                                                +-------------------+
 
-### Data Originator
+4.1.1.  Data Originator
 
-1. **Initiating Call**: An initiating caller contacts a Data Subject to provide a service.
-2. **Consent to Record**: The initiating caller requests consent to record the call for training purposes.
-3. **Consent to Share**: The call completes, confirming consent for
-the recording to be used for "sales followup", noting that the
-Data Subject can review and revoke consent later. Depending on the types of personal data communicated on the call and the purpose of its processing, the consent request language may need to include additional information.
-4. **vCon Created**: The call completes, the vCon is created, and call metadata is recorded in the vCon Registry.
-5. **Recording Added**: The recording is saved to the vCon Registry, adding it to the vCon's attachments section.
-6. **vCon Sent**: The Data Originator completes their responsibilities and sends the vCon to the Data Controller.
+   1.  *Initiating Call*: An initiating caller contacts a Data Subject
+       to provide a service.
 
-### Data Controller
+   2.  *Consent to Record*: The initiating caller requests consent to
+       record the call for training purposes.
 
-1. **vCon Received**: The vCon is received from the Data Originator, and a vcon_received operation is recorded in the SCITT Transparency Service.
-2. **vCon Enhanced with License and Data Controller**: The Data Controller adds transcription, specifies the intended license, and identifies themselves as the Data Controller on the vCon.
-3. **vCon Sent**: The Data Controller sends the vCon to the Data Processor(s).
+   3.  *Consent to Share*: The call completes, confirming consent for
+       the recording to be used for "sales followup", noting that the
+       Data Subject can review and revoke consent later.  Depending on
+       the types of personal data communicated on the call and the
+       purpose of its processing, the consent request language may need
+       to include additional information.
 
-### Data Processor(s)
+   4.  *vCon Created*: The call completes, the vCon is created, and call
+       metadata is recordedin the vCon Registry.
 
-1. **vCon Received**: The Data Processor validates the vCon's SCITT receipt from the Data Controller.
-2. **Consent Recorded**: The Data Processor records consent confirmation in the SCITT Transparency Service.
-3. **vCon Enhanced**: Sentiment analysis and other enhancements are processed through the Data Processor's Conserver workflows.
-4. **Consent Receipt Sent**: The Data Processor sends notification to the Data Subject(s) with a link to review consent details.
-5. **Consent Review**: The Data Subject(s) can review vCon information at any time and revoke consent if desired.
-6. **Data Processor Value-Add**: The Data Processor performs value-added services for the Data Subject(s).
+   5.  *Recording Added*: The recording is saved to the vCon Registry,
+       adding it to the vCon's attachments section.
 
-## Revocation and the Right to Be Forgotten
+   6.  *vCon Sent*: The Data Originator completes their responsibilities
+       and sends the vCon to the Data Controller.
 
-At any point, a Data Subject can request revocation or the right to be forgotten, requiring all vCon possessors to act accordingly. vCons must be tracked for where they were sent and who to contact when a Data Subject makes such requests. The SCITT Transparency Service maintains metadata about ingested vCons, ensuring integrity and inclusion protection.
+4.1.2.  Data Controller
 
-+-------------------+                      +-------------------+
-|   Data Subject    |                      |  Data Controller  |
-+---------+---------+                      +---------+---------+
-          |                                          |
-          | 1. Revoke Consent                        |
-          |-------->                                 |
-          |                                          |
-          | 2. Revoke Request Sent                   |
-          |----------------------------------------->|
-          |                                          |
-          |                                          | 3. Act on Revocation
-          |                                          |
-          |                                          | 4. Send Request to
-          |                                          |    All Processors
-          |                                          |-------->
-          |                                          |
-+---------v---------+                      +---------v---------+
-|   Data Subject    |                      |  Data Controller  |
-+-------------------+                      +-------------------+
-                                                    |
-                                                    v
-                                           +-------------------+
-                                           |  Data Processor   |
-                                           +---------+---------+
-                                                     |
-                                                     | 5. Deletion of Data
-                                                     |
-                                           +---------v---------+
-                                           |  Data Processor   |
-                                           +-------------------+ ~~~
+   1.  *vCon Received*: The vCon is received from the Data Originator,
+       and a vcon_received operation is recorded in the SCITT
+       Transparency Service.
 
-4.1.1.  Data Subject
+   2.  *vCon Enhanced with License and Data Controller*: The Data
+       Controller adds transcription, specifies the intended license,
+       and identifies themselves as the Data Controller on the vCon.
 
-   1.  *Revoke Consent*: The Data Subject clicks a link included in all
-       communications between the Data Processor and the Data
-       Subject(s).
+   3.  *vCon Sent*: The Data Controller sends the vCon to the Data
+       Processor(s).
+
+4.1.3.  Data Processor(s)
+
+   1.  *vCon Received*: The Data Processor validates the vCon's SCITT
+       receipt from the Data Controller.
+
+   2.  *Consent Recorded*: The Data Processor records consent
+       confirmation in the SCITT Transparency Service.
+
+   3.  *vCon Enhanced*: Sentiment analysis and other enhancements are
+       processed through the Data Processor's Conserver workflows.
+
+   4.  *Consent Receipt Sent*: The Data Processor sends notification to
+       the Data Subject(s) with a link to review consent details.
+
+   5.  *Consent Review*: The Data Subject(s) can review vCon information
+       at any time and revoke consent if desired.
+
+   6.  *Data Processor Value-Add*: The Data Processor performs value-
+       added services for the Data Subject(s).
+
+4.2.  Revocation and the Right to Be Forgotten
+
+   At any point, a Data Subject can request revocation or the right to
+   be forgotten, requiring all vCon possessors to act accordingly. vCons
+   must be tracked for where they were sent and who to contact when a
+   Data Subject makes such requests.  The SCITT Transparency Service
+   maintains metadata about ingested vCons, ensuring integrity and
+   inclusion protection.
+
+    +-------------------+                      +-------------------+
+    |   Data Subject    |                      |  Data Controller  |
+    +---------+---------+                      +---------+---------+
+              |                                          |
+              | 1. Revoke Consent                        |
+              |-------->                                 |
+              |                                          |
+              | 2. Revoke Request Sent                   |
+              |----------------------------------------->|
+              |                                          |
+              |                                          | 3. Act on Revocation
+              |                                          |
+              |                                          | 4. Send Request to
+              |                                          |    All Processors
+              |                                          |-------->
+              |                                          |
+    +---------v---------+                      +---------v---------+
+    |   Data Subject    |                      |  Data Controller  |
+    +-------------------+                      +-------------------+
+                                                        |
+                                                        v
+                                               +-------------------+
+                                               |  Data Processor   |
+                                               +---------+---------+
+                                                         |
+                                                         | 5. Deletion of Data
+                                                         |
+                                               +---------v---------+
+                                               |  Data Processor   |
+                                               +-------------------+
+
+4.2.1.  Data Subject
+
+   1.  *Revoke Consent*: The Data Subject revokes consent by some
+       manner: i.e. clicks a link included in all communications between
+       the Data Processor and the Data Subject(s), through an external
+       system or in conversation with the data controller.
 
    2.  *Revoke Request Sent*: If the vcon_consent_revoked operation was
        handled by the Data Processor, they MUST contact the Data
        Controller to communicate the Data Subject's intent.
 
-4.1.2.  Data Controller Revocation
+4.2.2.  Data Controller Revocation
 
    1.  *Act on Consent Revocation Request*: The Data Controller receives
        the vCon Consent Revocation Request and records it on their SCITT
@@ -655,7 +700,7 @@ At any point, a Data Subject can request revocation or the right to be forgotten
        revocation request to any Data Processor that hasn't yet
        acknowledged it.
 
-4.1.3.  Data Processor Revocation
+4.2.3.  Data Processor Revocation
 
    1.  *Deletion of Data*: Any Data Processor that hasn't yet acted on
        the request must acknowledge it.
@@ -883,6 +928,14 @@ At any point, a Data Subject can request revocation or the right to be forgotten
               <https://github.com/vcon-dev/vcon/blob/main/docs/vCons_%20
               an%20Open%20Standard%20for%20Conversation%20Data.pdf>.
 
+Appendix A.  Acknowledgments
+
+   *  Thank you to Allistair Woodman for connecting the first dots
+      between VCon and SCITT
+
+   *  Thank you to Jeff Pulver and Cody Launius for their collaboration
+      and support
+
 Authors' Addresses
 
    Thomas McCarthy-Howe
@@ -891,7 +944,10 @@ Authors' Addresses
 
 
    S. Lasker
+   Independent
+   Email: stevenlasker@hotmail.com
 
 
    Diana James
    Marashlian & Donahue, PLLC
+   Email: daj@commlawgroup.com

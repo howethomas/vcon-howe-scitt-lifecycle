@@ -9,13 +9,13 @@
 <meta content="S. Lasker" name="author">
 <meta content="Diana James" name="author">
 <meta content="
-       This document proposes using the SCITT (Supply Chain, Integrity, Transparency, and Trust) protocol to manage the lifecycle of Virtual Conversations (vCons), which are standardized containers for conversational data like call recordings, transcripts, and chat logs.
+       This document proposes using the SCITT (Supply Chain, Integrity, Transparency, and Trust) protocol to record, communicate and coordinate the lifecycle of Virtual Conversations (vCons), which are standardized containers for conversational data like call recordings, transcripts, and chat logs.
 While vCons enable capturing and sharing conversation details for AI analysis and business purposes, they lack mechanisms for proving compliance with privacy regulations and consent management.
 SCITT addresses this by providing an immutable, append-only transparency ledger that records key lifecycle events—from vCon creation and consent management to call recording, as well as data processing and deletion—enabling entities to demonstrate regulatory compliance and maintain trust across distributed systems.
 The framework specifically addresses consent management challenges under regulations like GDPR and CCPA, where consent can be revoked at any time, requiring coordinated deletion across all parties that have received the vCon.
 By combining vCons with SCITT, organizations can build scalable, transparent governance systems that protect personal data rights while enabling responsible use of conversational data for AI and business applications. 
     " name="description">
-<meta content="xml2rfc 3.29.0" name="generator">
+<meta content="xml2rfc 3.30.0" name="generator">
 <meta content="conversation" name="keyword">
 <meta content="vcon" name="keyword">
 <meta content="CDR" name="keyword">
@@ -29,9 +29,9 @@ By combining vCons with SCITT, organizations can build scalable, transparent gov
 <meta content="conference recording" name="keyword">
 <meta content="SCITT" name="keyword">
 <meta content="transparency" name="keyword">
-<meta content="draft-howe-vcon-scitt-lifecycle-latest" name="ietf.draft">
+<meta content="draft-howe-vcon-lifecycle-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.29.0
+  xml2rfc 3.30.0
     Python 3.12.11
     ConfigArgParse 1.7
     google-i18n-address 3.1.1
@@ -45,7 +45,7 @@ By combining vCons with SCITT, organizations can build scalable, transparent gov
     setuptools 80.9.0
     wcwidth 0.2.13
 -->
-<link href="draft-howe-vcon-scitt-lifecycle.xml" rel="alternate" type="application/rfc+xml">
+<link href="draft-howe-vcon-lifecycle.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
 <style type="text/css">@font-face {
   font-family: 'Lora';
@@ -1066,7 +1066,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 </tr></thead>
 <tfoot><tr>
 <td class="left">McCarthy-Howe, et al.</td>
-<td class="center">Expires 8 January 2026</td>
+<td class="center">Expires 22 January 2026</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1074,17 +1074,17 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <div id="internal-metadata" class="document-information">
 <dl id="identifiers">
 <dt class="label-workgroup">Workgroup:</dt>
-<dd class="workgroup">Virtualized Conversations</dd>
+<dd class="workgroup">vcon</dd>
 <dt class="label-internet-draft">Internet-Draft:</dt>
-<dd class="internet-draft">draft-howe-vcon-scitt-lifecycle-latest</dd>
+<dd class="internet-draft">draft-howe-vcon-lifecycle-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2025-07-07" class="published">7 July 2025</time>
+<time datetime="2025-07-21" class="published">21 July 2025</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2026-01-08">8 January 2026</time></dd>
+<dd class="expires"><time datetime="2026-01-22">22 January 2026</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1093,6 +1093,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 </div>
 <div class="author">
       <div class="author-name">S. Lasker</div>
+<div class="org">Independent</div>
 </div>
 <div class="author">
       <div class="author-name">D. James</div>
@@ -1104,7 +1105,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <h1 id="title">vCon Lifecycle Management using SCITT</h1>
 <section id="section-abstract">
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
-<p id="section-abstract-1">This document proposes using the SCITT (Supply Chain, Integrity, Transparency, and Trust) protocol to manage the lifecycle of Virtual Conversations (vCons), which are standardized containers for conversational data like call recordings, transcripts, and chat logs.
+<p id="section-abstract-1">This document proposes using the SCITT (Supply Chain, Integrity, Transparency, and Trust) protocol to record, communicate and coordinate the lifecycle of Virtual Conversations (vCons), which are standardized containers for conversational data like call recordings, transcripts, and chat logs.
 While vCons enable capturing and sharing conversation details for AI analysis and business purposes, they lack mechanisms for proving compliance with privacy regulations and consent management.
 SCITT addresses this by providing an immutable, append-only transparency ledger that records key lifecycle events—from vCon creation and consent management to call recording, as well as data processing and deletion—enabling entities to demonstrate regulatory compliance and maintain trust across distributed systems.
 The framework specifically addresses consent management challenges under regulations like GDPR and CCPA, where consent can be revoked at any time, requiring coordinated deletion across all parties that have received the vCon.
@@ -1116,15 +1117,15 @@ By combining vCons with SCITT, organizations can build scalable, transparent gov
       </h2>
 <p id="section-note.1-1">This note is to be removed before publishing as an RFC.<a href="#section-note.1-1" class="pilcrow">¶</a></p>
 <p id="section-note.1-2">
-        The latest revision of this draft can be found at <span><a href="https://howethomas.github.io/vcon-howe-scitt-lifecycle/draft-howe-vcon-scitt-lifecycle.html">https://howethomas.github.io/vcon-howe-scitt-lifecycle/draft-howe-vcon-scitt-lifecycle.html</a></span>.
-        Status information for this document may be found at <span><a href="https://datatracker.ietf.org/doc/draft-howe-vcon-scitt-lifecycle/">https://datatracker.ietf.org/doc/draft-howe-vcon-scitt-lifecycle/</a></span>.<a href="#section-note.1-2" class="pilcrow">¶</a></p>
+        The latest revision of this draft can be found at <span><a href="https://howethomas.github.io/vcon-dev/draft-howe-vcon-lifecycle.html">https://howethomas.github.io/vcon-dev/draft-howe-vcon-lifecycle.html</a></span>.
+        Status information for this document may be found at <span><a href="https://datatracker.ietf.org/doc/draft-howe-vcon-lifecycle/">https://datatracker.ietf.org/doc/draft-howe-vcon-lifecycle/</a></span>.<a href="#section-note.1-2" class="pilcrow">¶</a></p>
 <p id="section-note.1-3">
         Discussion of this document takes place on the
         Virtualized Conversations Working Group mailing list (<span><a href="mailto:vcon@ietf.org">mailto:vcon@ietf.org</a></span>),
         which is archived at <span><a href="https://mailarchive.ietf.org/arch/browse/vcon/">https://mailarchive.ietf.org/arch/browse/vcon/</a></span>.
         Subscribe at <span><a href="https://www.ietf.org/mailman/listinfo/vcon/">https://www.ietf.org/mailman/listinfo/vcon/</a></span>.<a href="#section-note.1-3" class="pilcrow">¶</a></p>
 <p id="section-note.1-4">Source for this draft and an issue tracker can be found at
-        <span><a href="https://github.com/howethomas/vcon-howe-scitt-lifecycle">https://github.com/howethomas/vcon-howe-scitt-lifecycle</a></span>.<a href="#section-note.1-4" class="pilcrow">¶</a></p>
+        <span><a href="https://github.com/vcon-dev/draft-howe-vcon-lifecycle">https://github.com/vcon-dev/draft-howe-vcon-lifecycle</a></span>.<a href="#section-note.1-4" class="pilcrow">¶</a></p>
 </section>
 <div id="status-of-memo">
 <section id="section-boilerplate.1">
@@ -1145,7 +1146,7 @@ By combining vCons with SCITT, organizations can build scalable, transparent gov
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 8 January 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 22 January 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1220,13 +1221,27 @@ By combining vCons with SCITT, organizations can build scalable, transparent gov
                 <p id="section-toc.1-1.4.2.1.1"><a href="#section-4.1" class="auto internal xref">4.1</a>.  <a href="#name-vcon-create-consent-and-sha" class="internal xref">vCon Create, Consent and Share</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1.2.1">
-                    <p id="section-toc.1-1.4.2.1.2.1.1"><a href="#section-4.1.1" class="auto internal xref">4.1.1</a>.  <a href="#name-data-subject" class="internal xref">Data Subject</a></p>
+                    <p id="section-toc.1-1.4.2.1.2.1.1"><a href="#section-4.1.1" class="auto internal xref">4.1.1</a>.  <a href="#name-data-originator" class="internal xref">Data Originator</a></p>
 </li>
                   <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1.2.2">
-                    <p id="section-toc.1-1.4.2.1.2.2.1"><a href="#section-4.1.2" class="auto internal xref">4.1.2</a>.  <a href="#name-data-controller-revocation" class="internal xref">Data Controller Revocation</a></p>
+                    <p id="section-toc.1-1.4.2.1.2.2.1"><a href="#section-4.1.2" class="auto internal xref">4.1.2</a>.  <a href="#name-data-controller" class="internal xref">Data Controller</a></p>
 </li>
                   <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1.2.3">
-                    <p id="section-toc.1-1.4.2.1.2.3.1"><a href="#section-4.1.3" class="auto internal xref">4.1.3</a>.  <a href="#name-data-processor-revocation" class="internal xref">Data Processor Revocation</a></p>
+                    <p id="section-toc.1-1.4.2.1.2.3.1"><a href="#section-4.1.3" class="auto internal xref">4.1.3</a>.  <a href="#name-data-processors" class="internal xref">Data Processor(s)</a></p>
+</li>
+                </ul>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.2">
+                <p id="section-toc.1-1.4.2.2.1"><a href="#section-4.2" class="auto internal xref">4.2</a>.  <a href="#name-revocation-and-the-right-to" class="internal xref">Revocation and the Right to Be Forgotten</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.2.2.1">
+                    <p id="section-toc.1-1.4.2.2.2.1.1"><a href="#section-4.2.1" class="auto internal xref">4.2.1</a>.  <a href="#name-data-subject" class="internal xref">Data Subject</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.2.2.2">
+                    <p id="section-toc.1-1.4.2.2.2.2.1"><a href="#section-4.2.2" class="auto internal xref">4.2.2</a>.  <a href="#name-data-controller-revocation" class="internal xref">Data Controller Revocation</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.2.2.3">
+                    <p id="section-toc.1-1.4.2.2.2.3.1"><a href="#section-4.2.3" class="auto internal xref">4.2.3</a>.  <a href="#name-data-processor-revocation" class="internal xref">Data Processor Revocation</a></p>
 </li>
                 </ul>
 </li>
@@ -1259,7 +1274,10 @@ By combining vCons with SCITT, organizations can build scalable, transparent gov
             <p id="section-toc.1-1.10.1"><a href="#section-10" class="auto internal xref">10</a>. <a href="#name-informative-references-2" class="internal xref">Informative References</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11">
-            <p id="section-toc.1-1.11.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-authors-addresses" class="internal xref">Authors' Addresses</a></p>
+            <p id="section-toc.1-1.11.1"><a href="#appendix-A" class="auto internal xref">Appendix A</a>.  <a href="#name-acknowledgments" class="internal xref">Acknowledgments</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12">
+            <p id="section-toc.1-1.12.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-authors-addresses" class="internal xref">Authors' Addresses</a></p>
 </li>
         </ul>
 </nav>
@@ -1295,19 +1313,35 @@ By combining vCons with SCITT, organizations can build scalable, transparent gov
    "transparent" way.  SCITT achieves this by having producers publish
    information in a Transparency Service, where Relying Parties can
    check the information.<a href="#section-1-4" class="pilcrow">¶</a></p>
-<p id="section-1-5">These relying parties can then use this information to make decisions based on the current state and context of the vCon to account for changes in consent, updates in the accuracy of the content, or amendments of the information it might contain. SCITT, the Supply Chain, Integrity, Transparency, and Trust protocol, enables clients to register statements about events, physical or virtual, such as when things are created or used. These statements are immutable and are useful to support auditing, governance, and coordination between various distributed systems.<a href="#section-1-5" class="pilcrow">¶</a></p>
+<p id="section-1-5">These relying parties can then use this information to make decisions
+based on the current state and context of the vCon to account for changes
+in consent, updates in the accuracy of the content, or amendments of the
+information it might contain.
+SCITT, the Supply Chain, Integrity, Transparency, and Trust protocol,
+enables clients to register statements about events, physical or virtual,
+such as when things are created or used.
+These statements are immutable and are useful to support auditing,
+governance, and coordination between various distributed systems.<a href="#section-1-5" class="pilcrow">¶</a></p>
 <p id="section-1-6">When using vCons to define a conversation, and SCITT to record the
 events that occur to them, more scalable and transparent systems of
 governance and provenance can be constructed to support privacy
 efforts.  It is expected that there are many situations where this
 governance across security boundaries is common and desired by all
 parties.  One real-world example of this is management of consent as
-it applies to the use of conversations for different purposes, such as machine learning.  Using
-conversations as inputs to machine learning has great benefit to both
-customers and businesses, yet only responsibly within the defense of
-personal data rights and compliance with personal data and communications privacy laws, united together
-by consent. Although consent to a call recording or personal data collection and processing is not always required under the applicable laws, seeking consent is often the best practice, given the Privacy by Design principles, multijurisdictional business operations, and the ever-changing privacy laws. Please see the <a href="https://datatracker.ietf.org/doc/draft-james-privacy-primer-vcon/">privacy-primer-vcon</a> for more information on consent.<a href="#section-1-6" class="pilcrow">¶</a></p>
-<p id="section-1-7">In all of these cases, the ability to define and express the processing of conversations depends on the ability to authoritatively define the lifecycle of a vCon:<a href="#section-1-7" class="pilcrow">¶</a></p>
+it applies to the use of conversations for different purposes,
+such as machine learning.  Using conversations as inputs to machine
+learning has great benefit to both customers and businesses, yet only
+responsibly within the defense of
+personal data rights and compliance with personal data and
+communications privacy laws, united together
+by consent. Although consent to a call recording or personal data
+collection and processing is not always required under the applicable
+laws, seeking consent is often the best practice, given the Privacy by Design
+principles, multijurisdictional business operations, and the ever-changing
+privacy laws. Please see the <a href="https://datatracker.ietf.org/doc/draft-james-privacy-primer-vcon/">privacy-primer-vcon</a> for more information on
+consent and other data subject protection concepts.<a href="#section-1-6" class="pilcrow">¶</a></p>
+<p id="section-1-7">In all of these cases, the ability to define and express the processing of
+conversations depends on the ability to authoritatively define the lifecycle of a vCon:<a href="#section-1-7" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-1-8.1">
           <p id="section-1-8.1.1">who originated the vCon in the first place to establish provenance<a href="#section-1-8.1.1" class="pilcrow">¶</a></p>
@@ -1328,15 +1362,39 @@ by consent. Although consent to a call recording or personal data collection and
           <p id="section-1-8.6.1">the sharing or deletion in response to the same digital rights<a href="#section-1-8.6.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
-<p id="section-1-9">For this document and for purposes of illustration, consent will be used as an example. Proper consent management is fundamental to the responsible protection of data and the ability to leverage that data. Consent granted by the data subject of a vCon also needs to be stored and passed, exactly like the other information contained in a vCon. Unlike the rest of the information contained, the gathered consent is expressly not immutable. Consent, when gathered for a purpose, can also be revoked by the data subject at any time and surely after a vCon has been shared for analysis.<a href="#section-1-9" class="pilcrow">¶</a></p>
-<p id="section-1-10">Multiple regulations, including the US-born California Consumer Protection Act (CCPA) <a href="https://oag.ca.gov/privacy/ccpa">CCPA</a> and the EU-born General Data Protection Regulation (GDPR) <a href="https://gdpr.eu/">GDPR</a>, outline requirements for entities to use and dispose of PII information responsibly upon request. Consent, although illustrative, is not the only example of mutability in the lifecycle of a vCon. Verification of parties, improvements in the analysis, and additions of contextual attachments result in updates to a vCon after data is shared, begging for a mechanism to track and govern such changes.<a href="#section-1-10" class="pilcrow">¶</a></p>
-<p id="section-1-11">To honor the working group's charter to pass conversational data safely between consenting parties, this draft provides an overview of the requirements, a workflow and an example consent structure for using SCITT to manage the vCon lifecycle at scale, providing end-to-end, interoperable services and tooling. The workflow enables entities in the workflow to collaborate on a vCon while assuring all entities in the workflow adhere to relevant PII regulations using a SCITT Ledger. Actual implementations of these workflows are left to implementers and applications; this draft provides an authoritative list of the entries that should appear on the SCITT transparency ledger to enable them.<a href="#section-1-11" class="pilcrow">¶</a></p>
+<p id="section-1-9">For this document and for purposes of illustration, consent will be used as an example use case.
+Proper consent management is fundamental to the responsible protection of data and the ability
+to leverage that data. Consent granted by the data subject of a vCon also needs to be stored
+and passed, exactly like the other information contained in a vCon. Unlike the rest of the
+information contained, the gathered consent is expressly not immutable. Consent, when gathered
+for a purpose, can also be revoked by the data subject at any time and surely after a vCon has
+been shared for analysis.<a href="#section-1-9" class="pilcrow">¶</a></p>
+<p id="section-1-10">Multiple regulations, including the US-born California Consumer Protection Act (CCPA) <a href="https://oag.ca.gov/privacy/ccpa">CCPA</a>
+and the EU-born General Data Protection Regulation (GDPR) <a href="https://gdpr.eu/">GDPR</a>, outline requirements for
+entities to use and dispose of PII information responsibly upon request. Consent, although
+illustrative, is not the only example of mutability in the lifecycle of a vCon.
+Verification of parties, improvements in the analysis, and additions of contextual attachments
+result in updates to a vCon after data is shared, begging for a mechanism to
+track and govern such changes.<a href="#section-1-10" class="pilcrow">¶</a></p>
+<p id="section-1-11">To honor the working group's charter to pass conversational data safely between consenting
+parties, this draft provides an overview of the requirements, a workflow and an example
+consent structure for using SCITT to manage the vCon lifecycle at scale, providing end-to-end,
+interoperable services and tooling. The workflow enables entities in the workflow to
+collaborate on a vCon while assuring all entities in the workflow adhere to relevant
+PII regulations using a SCITT Ledger. Actual implementations of these workflows are left
+to implementers and applications; this draft provides an authoritative list of the entries
+that should appear on the SCITT transparency ledger to enable them.<a href="#section-1-11" class="pilcrow">¶</a></p>
 <div id="acts-of-trust-and-transparency">
 <section id="section-1.1">
         <h3 id="name-acts-of-trust-and-transpare">
 <a href="#section-1.1" class="section-number selfRef">1.1. </a><a href="#name-acts-of-trust-and-transpare" class="section-name selfRef">Acts of Trust and Transparency</a>
         </h3>
-<p id="section-1.1-1">Throughout this workflow, no single entity can prove that other entities performed the required actions. However, by auditing the SCITT Ledgers of all involved parties, entities can prove they acted on the acknowledged consent and intent of the Data Subject, holding other entities accountable for performing required operations.<a href="#section-1.1-1" class="pilcrow">¶</a></p>
+<p id="section-1.1-1">Throughout this workflow, no single entity can prove that other entities performed the
+required actions. However, by auditing the SCITT Ledgers of all involved parties, entities
+can prove they acted on the acknowledged consent and intent of the Data Subject, holding
+other entities accountable for performing required operations.  In short, this audit can
+help to prove that "the good guys did the right thing", to measure the compliance of those
+outside this architecture who may have chosen different methods of compliance assurance.<a href="#section-1.1-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="standards-based-interoperability">
@@ -1344,11 +1402,20 @@ by consent. Although consent to a call recording or personal data collection and
         <h3 id="name-standards-based-interoperab">
 <a href="#section-1.2" class="section-number selfRef">1.2. </a><a href="#name-standards-based-interoperab" class="section-name selfRef">Standards-Based Interoperability</a>
         </h3>
-<p id="section-1.2-1">A wide range of industries and business scenarios benefit from virtual conversations, making them valuable across countless organizations.The breadth of industries and scenarios that benefit from virtual
-conversations spans numerous companies.
-The power of this technology lies in enabling cross-conversation collaboration. By implementing a standards-based approach, both collaborative and competitive companies can easily integrate with solutions for transcription, consent management, and CRM integration.<a href="#section-1.2-1" class="pilcrow">¶</a></p>
-<p id="section-1.2-2">Packaging conversations and associated metadata in the vCon format provides a standardized means to communicate what has been sent. Due to the personally identifiable information and digital fingerprinting in vCons, it's critical to understand and adhere to regulatory requirements for PII management. Defining and implementing a standard provides stability in information management throughout the lifecycle.<a href="#section-1.2-2" class="pilcrow">¶</a></p>
-<p id="section-1.2-3">Recording which vCon elements were sent to various parties holds each accountable for what was sent, what was received, and when these exchanges occurred.<a href="#section-1.2-3" class="pilcrow">¶</a></p>
+<p id="section-1.2-1">A wide range of industries and business scenarios benefit from virtual conversations,
+making them valuable across countless organizations.The breadth of industries and
+scenarios that benefit from virtual conversations spans numerous companies.
+The power of this technology lies in enabling cross-conversation collaboration.
+By implementing a standards-based approach, both collaborative and competitive
+companies can easily integrate with solutions for transcription, consent management,
+and CRM integration.<a href="#section-1.2-1" class="pilcrow">¶</a></p>
+<p id="section-1.2-2">Packaging conversations and associated metadata in the vCon format provides a
+standardized means to communicate what has been sent. Due to the personally
+identifiable information and digital fingerprinting in vCons, it's critical
+to understand and adhere to regulatory requirements for PII management. Defining
+and implementing a standard provides stability in information management throughout the lifecycle.<a href="#section-1.2-2" class="pilcrow">¶</a></p>
+<p id="section-1.2-3">Recording which vCon elements were sent to various parties holds each accountable
+for what was sent, what was received, and when these exchanges occurred.<a href="#section-1.2-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="what-differentiates-scitt-from-a-database">
@@ -1389,15 +1456,27 @@ The power of this technology lies in enabling cross-conversation collaboration. 
    14 <a href="https://www.rfc-editor.org/info/rfc8174">RFC2119</a> when, and only when, they appear in all
    capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶</a></p>
 <p id="section-2-2">The following terms, derived from <a href="https://oag.ca.gov/privacy/ccpa">CCPA</a>, <a href="https://gdpr.eu/">GDPR</a> and <a href="https://datatracker.ietf.org/doc/draft-james-privacy-primer-vcon/">privacy-primer-vcon</a>, are used throughout the document:<a href="#section-2-2" class="pilcrow">¶</a></p>
-<p id="section-2-3"><strong>Conserver</strong>: A vCon workflow engine that ingests vCons, routing them for processing and enhancements. A conserver doesn't store a vCon, rather it processes the vCon for transcription, sentiment, integrity protection on egress, verification on ingress, retrieving it from, and saving it to a vCon Registry.<a href="#section-2-3" class="pilcrow">¶</a></p>
-<p id="section-2-4"><strong>Data Subject</strong>: The individual(s) whose personal information is processed (also referred to as the "consumer" in many personal data privacy laws).<a href="#section-2-4" class="pilcrow">¶</a></p>
+<p id="section-2-3"><strong>Conserver</strong>: A vCon workflow engine that ingests vCons, routing them for
+processing and enhancements. A conserver doesn't store a vCon, rather it processes
+the vCon for transcription, sentiment, integrity protection on egress, verification
+on ingress, retrieving it from, and saving it to a vCon Registry.<a href="#section-2-3" class="pilcrow">¶</a></p>
+<p id="section-2-4"><strong>Data Subject</strong>: The individual(s) whose personal information is processed
+(also referred to as the "consumer" in many personal data privacy laws).<a href="#section-2-4" class="pilcrow">¶</a></p>
 <p id="section-2-5"><strong>Data Originator</strong>: The Entity that records and initiates the vCon,
 identifying the parties, including the media of the conversation.
 For a phone call, this may include the phone numbers and the audio
 recording.  For internet-based calls, such as Microsoft Teams, Zoom,
 Google meet, this may include emails and audio/video recording.  The
 Data Originator is a facilitator with access to the content of the
-call. This document addresses the instance where the Data Originator is a data processor under the applicable data privacy laws, collecting and processing data on behalf of a Data Controller. However, Data Originators may also act as Data Controllers when collecting and processing data for their own purposes. This document does not address such an instance, and implementers will need to adjust the technical process accordingly. In general, Data Originators may be required to collect consent by applicable law when acting as Data Controllers and by the relevant data processing agreements with Data Controllers when acting as Data Processors. .  One or all of the
+call. This document addresses the instance where the Data Originator
+is a data processor under the applicable data privacy laws, collecting
+and processing data on behalf of a Data Controller. However, Data Originators
+may also act as Data Controllers when collecting and processing data for
+their own purposes. This document does not address such an instance, and
+implementers will need to adjust the technical process accordingly. In general,
+Data Originators may be required to collect consent by applicable law when acting
+as Data Controllers and by the relevant data processing agreements with Data
+Controllers when acting as Data Processors. .  One or all of the
 Data Subjects must initiate consent, giving the Data Originator the
 right to record the conversation, which may be the Data Controller's
 responsibility to identify.<a href="#section-2-5" class="pilcrow">¶</a></p>
@@ -1405,12 +1484,24 @@ responsibility to identify.<a href="#section-2-5" class="pilcrow">¶</a></p>
 authority over data processing who determines the purposes and
 methods of data processing, bears primary responsibility under
 privacy laws and is the main target of most privacy and data
-protection regulations. Under most data privacy laws, Data Controllers are required to enter into data processing agreements with their Data Processors, detailing the rules for data collection and processing in accordance with applicable laws.<a href="#section-2-6" class="pilcrow">¶</a></p>
-<p id="section-2-7"><strong>Data Processor</strong>: An individual or an Entity, which processes personal data on behalf of the Data Controller. It is often a third-party service provider who processes
-data on behalf of the data controller.  Under HIPAA
-data processors are referred to as "business associates." Data processors may be hired for specialized tasks or to improve efficiency; can subcontract to other processors, creating a chain of responsibility; must operate within the scope defined by the data controller; and are expected to maintain trust and adhere to the controller's guidelines. A Conserver often calls out to Data Processors for Transcription, Sentiment Analysis, Fraud Detection, email/text messaging.<a href="#section-2-7" class="pilcrow">¶</a></p>
-<p id="section-2-8"><em>Processing</em>: Any operation or set of operations which is performed on personal data or on sets of personal data. Among other things, this includes collection, storage, use, disclosure, and deletion.<a href="#section-2-8" class="pilcrow">¶</a></p>
-<p id="section-2-9"><em>Personal Data</em>: any information relating to an identified or identifiable Data Subject, including a name, an identification number, location data, an online identifier or to one or more factors specific to the physical, physiological, genetic, mental, economic, cultural or social identity of the Data Subject.<a href="#section-2-9" class="pilcrow">¶</a></p>
+protection regulations. Under most data privacy laws, Data Controllers
+are required to enter into data processing agreements with their Data Processors, detailing the rules for data collection and processing in accordance with applicable laws.<a href="#section-2-6" class="pilcrow">¶</a></p>
+<p id="section-2-7"><strong>Data Processor</strong>: An individual or an Entity, which processes personal
+data on behalf of the Data Controller. It is often a third-party service
+provider who processes data on behalf of the data controller.  Under HIPAA
+data processors are referred to as "business associates." Data processors
+may be hired for specialized tasks or to improve efficiency; can subcontract
+to other processors, creating a chain of responsibility; must operate within the
+scope defined by the data controller; and are expected to maintain trust and adhere
+to the controller's guidelines. A Conserver often calls out to Data Processors for
+Transcription, Sentiment Analysis, Fraud Detection, email/text messaging.<a href="#section-2-7" class="pilcrow">¶</a></p>
+<p id="section-2-8"><em>Processing</em>: Any operation or set of operations which is performed on personal data
+or on sets of personal data. Among other things, this includes collection, storage,
+use, disclosure, and deletion.<a href="#section-2-8" class="pilcrow">¶</a></p>
+<p id="section-2-9"><em>Personal Data</em>: any information relating to an identified or identifiable Data Subject,
+including a name, an identification number, location data, an online identifier or to
+one or more factors specific to the physical, physiological, genetic, mental, economic,
+cultural or social identity of the Data Subject.<a href="#section-2-9" class="pilcrow">¶</a></p>
 <p id="section-2-10"><strong>Entity</strong>: A generic reference to companies, groups or individuals
 that may share, alter, or use a vCon.  An Entity may be a Data
 Originator, Data Controller, Data Processor or some other role that
@@ -1458,7 +1549,9 @@ processing of a vCon.<a href="#section-2-10" class="pilcrow">¶</a></p>
           <h4 id="name-creation-distribution-and-d">
 <a href="#section-3.2.1" class="section-number selfRef">3.2.1. </a><a href="#name-creation-distribution-and-d" class="section-name selfRef">Creation, Distribution and Deletion</a>
           </h4>
-<p id="section-3.2.1-1">The vCon lifecycle comprises a series of phases from creation through distribution to deletion. Tracking these phases enables fundamental privacy rights, such as the right to know how your data was processed, and secures AI supply chains by establishing provenance and guaranteeing integrity.<a href="#section-3.2.1-1" class="pilcrow">¶</a></p>
+<p id="section-3.2.1-1">The vCon lifecycle comprises a series of phases from creation through distribution to deletion.
+Tracking these phases enables fundamental privacy rights, such as the right to know how your
+data was processed, and secures AI supply chains by establishing provenance and guaranteeing integrity.<a href="#section-3.2.1-1" class="pilcrow">¶</a></p>
 <p id="section-3.2.1-2">The phases of a vCon's life include:<a href="#section-3.2.1-2" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-3.2.1-3">
 <pre>
@@ -1515,7 +1608,8 @@ processing of a vCon.<a href="#section-2-10" class="pilcrow">¶</a></p>
           </h4>
 <p id="section-3.2.2-1">Interwoven with the vCon lifecycle is consent management.  A modern
 consent model is envisioned: consent is gathered by the Data
-Controller (or the Data Originator acting as a data processor on behalf of the Data Controller) for particular purposes (such as training or sharing) and
+Controller (or the Data Originator acting as a data processor on behalf
+of the Data Controller) for particular purposes (such as training or sharing) and
 can be withdrawn by the Data Subject on demand.  This withdrawal may
 result in revoking the vCon or modifying it to remove non-consenting
 portions.<a href="#section-3.2.2-1" class="pilcrow">¶</a></p>
@@ -1561,7 +1655,12 @@ portions.<a href="#section-3.2.2-1" class="pilcrow">¶</a></p>
           <h4 id="name-amendment-of-existing-vcons">
 <a href="#section-3.2.3" class="section-number selfRef">3.2.3. </a><a href="#name-amendment-of-existing-vcons" class="section-name selfRef">Amendment of Existing vCons</a>
           </h4>
-<p id="section-3.2.3-1">Under normal circumstances, vCons may be amended. For example, at creation time, parties to a vCon may be verified through methods such as OAuth. However, if account credentials are later found to be compromised, the verification status may need revision. Party verification issues often trigger "Rights to Correct" requests and are fundamental to responsible data rights management. Other enhancements and modifications may occur for security reasons, future processing needs, or in response to regulatory changes.<a href="#section-3.2.3-1" class="pilcrow">¶</a></p>
+<p id="section-3.2.3-1">Under normal circumstances, vCons may be amended. For example, at creation time,
+parties to a vCon may be verified through methods such as OAuth. However, if account
+credentials are later found to be compromised, the verification status may need revision.
+Party verification issues often trigger "Rights to Correct" requests and are fundamental
+to responsible data rights management. Other enhancements and modifications may occur
+for security reasons, future processing needs, or in response to regulatory changes.<a href="#section-3.2.3-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-3.2.3-2">
 <pre>
 +----------------+     +----------------+     +----------------+
@@ -1654,111 +1753,168 @@ portions.<a href="#section-3.2.2-1" class="pilcrow">¶</a></p>
                                                +---------v---------+
                                                |  Data Processor   |
                                                +-------------------+
-
-### Data Originator
-
-1. **Initiating Call**: An initiating caller contacts a Data Subject to provide a service.
-2. **Consent to Record**: The initiating caller requests consent to record the call for training purposes.
-3. **Consent to Share**: The call completes, confirming consent for
-the recording to be used for "sales followup", noting that the
-Data Subject can review and revoke consent later. Depending on the types of personal data communicated on the call and the purpose of its processing, the consent request language may need to include additional information.
-4. **vCon Created**: The call completes, the vCon is created, and call metadata is recorded in the vCon Registry.
-5. **Recording Added**: The recording is saved to the vCon Registry, adding it to the vCon's attachments section.
-6. **vCon Sent**: The Data Originator completes their responsibilities and sends the vCon to the Data Controller.
-
-### Data Controller
-
-1. **vCon Received**: The vCon is received from the Data Originator, and a vcon_received operation is recorded in the SCITT Transparency Service.
-2. **vCon Enhanced with License and Data Controller**: The Data Controller adds transcription, specifies the intended license, and identifies themselves as the Data Controller on the vCon.
-3. **vCon Sent**: The Data Controller sends the vCon to the Data Processor(s).
-
-### Data Processor(s)
-
-1. **vCon Received**: The Data Processor validates the vCon's SCITT receipt from the Data Controller.
-2. **Consent Recorded**: The Data Processor records consent confirmation in the SCITT Transparency Service.
-3. **vCon Enhanced**: Sentiment analysis and other enhancements are processed through the Data Processor's Conserver workflows.
-4. **Consent Receipt Sent**: The Data Processor sends notification to the Data Subject(s) with a link to review consent details.
-5. **Consent Review**: The Data Subject(s) can review vCon information at any time and revoke consent if desired.
-6. **Data Processor Value-Add**: The Data Processor performs value-added services for the Data Subject(s).
-
-## Revocation and the Right to Be Forgotten
-
-At any point, a Data Subject can request revocation or the right to be forgotten, requiring all vCon possessors to act accordingly. vCons must be tracked for where they were sent and who to contact when a Data Subject makes such requests. The SCITT Transparency Service maintains metadata about ingested vCons, ensuring integrity and inclusion protection.
-
 </pre><a href="#section-4.1-1" class="pilcrow">¶</a>
 </div>
-<div class="alignLeft art-text artwork" id="section-4.1-2">
-<pre>
-+-------------------+                      +-------------------+
-|   Data Subject    |                      |  Data Controller  |
-+---------+---------+                      +---------+---------+
-          |                                          |
-          | 1. Revoke Consent                        |
-          |--------&gt;                                 |
-          |                                          |
-          | 2. Revoke Request Sent                   |
-          |-----------------------------------------&gt;|
-          |                                          |
-          |                                          | 3. Act on Revocation
-          |                                          |
-          |                                          | 4. Send Request to
-          |                                          |    All Processors
-          |                                          |--------&gt;
-          |                                          |
-+---------v---------+                      +---------v---------+
-|   Data Subject    |                      |  Data Controller  |
-+-------------------+                      +-------------------+
-                                                    |
-                                                    v
-                                           +-------------------+
-                                           |  Data Processor   |
-                                           +---------+---------+
-                                                     |
-                                                     | 5. Deletion of Data
-                                                     |
-                                           +---------v---------+
-                                           |  Data Processor   |
-                                           +-------------------+ ~~~
-</pre><a href="#section-4.1-2" class="pilcrow">¶</a>
-</div>
-<div id="data-subject">
+<div id="data-originator">
 <section id="section-4.1.1">
-          <h4 id="name-data-subject">
-<a href="#section-4.1.1" class="section-number selfRef">4.1.1. </a><a href="#name-data-subject" class="section-name selfRef">Data Subject</a>
+          <h4 id="name-data-originator">
+<a href="#section-4.1.1" class="section-number selfRef">4.1.1. </a><a href="#name-data-originator" class="section-name selfRef">Data Originator</a>
           </h4>
 <ol start="1" type="1" class="normal type-1" id="section-4.1.1-1">
 <li id="section-4.1.1-1.1">
-              <p id="section-4.1.1-1.1.1"><strong>Revoke Consent</strong>: The Data Subject clicks a link included in all communications between the Data Processor and the Data Subject(s).<a href="#section-4.1.1-1.1.1" class="pilcrow">¶</a></p>
+              <p id="section-4.1.1-1.1.1"><strong>Initiating Call</strong>: An initiating caller contacts a Data Subject to provide a service.<a href="#section-4.1.1-1.1.1" class="pilcrow">¶</a></p>
 </li>
             <li id="section-4.1.1-1.2">
-              <p id="section-4.1.1-1.2.1"><strong>Revoke Request Sent</strong>: If the vcon_consent_revoked operation was handled by the Data Processor, they MUST contact the Data Controller to communicate the Data Subject's intent.<a href="#section-4.1.1-1.2.1" class="pilcrow">¶</a></p>
+              <p id="section-4.1.1-1.2.1"><strong>Consent to Record</strong>: The initiating caller requests consent to record the call for training purposes.<a href="#section-4.1.1-1.2.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-4.1.1-1.3">
+              <p id="section-4.1.1-1.3.1"><strong>Consent to Share</strong>: The call completes, confirming consent for
+the recording to be used for "sales followup", noting that the
+Data Subject can review and revoke consent later. Depending on the types of personal
+data communicated on the call and the purpose of its processing, the consent request
+language may need to include additional information.<a href="#section-4.1.1-1.3.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-4.1.1-1.4">
+              <p id="section-4.1.1-1.4.1"><strong>vCon Created</strong>: The call completes, the vCon is created, and call metadata is recordedin the vCon Registry.<a href="#section-4.1.1-1.4.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-4.1.1-1.5">
+              <p id="section-4.1.1-1.5.1"><strong>Recording Added</strong>: The recording is saved to the vCon Registry, adding it to the vCon's attachments section.<a href="#section-4.1.1-1.5.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-4.1.1-1.6">
+              <p id="section-4.1.1-1.6.1"><strong>vCon Sent</strong>: The Data Originator completes their responsibilities and sends the vCon to the Data Controller.<a href="#section-4.1.1-1.6.1" class="pilcrow">¶</a></p>
+</li>
+          </ol>
+</section>
+</div>
+<div id="data-controller">
+<section id="section-4.1.2">
+          <h4 id="name-data-controller">
+<a href="#section-4.1.2" class="section-number selfRef">4.1.2. </a><a href="#name-data-controller" class="section-name selfRef">Data Controller</a>
+          </h4>
+<ol start="1" type="1" class="normal type-1" id="section-4.1.2-1">
+<li id="section-4.1.2-1.1">
+              <p id="section-4.1.2-1.1.1"><strong>vCon Received</strong>: The vCon is received from the Data Originator, and a vcon_received operation is recorded in the SCITT Transparency Service.<a href="#section-4.1.2-1.1.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-4.1.2-1.2">
+              <p id="section-4.1.2-1.2.1"><strong>vCon Enhanced with License and Data Controller</strong>: The Data Controller adds transcription, specifies the intended license, and identifies themselves as the Data Controller on the vCon.<a href="#section-4.1.2-1.2.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-4.1.2-1.3">
+              <p id="section-4.1.2-1.3.1"><strong>vCon Sent</strong>: The Data Controller sends the vCon to the Data Processor(s).<a href="#section-4.1.2-1.3.1" class="pilcrow">¶</a></p>
+</li>
+          </ol>
+</section>
+</div>
+<div id="data-processors">
+<section id="section-4.1.3">
+          <h4 id="name-data-processors">
+<a href="#section-4.1.3" class="section-number selfRef">4.1.3. </a><a href="#name-data-processors" class="section-name selfRef">Data Processor(s)</a>
+          </h4>
+<ol start="1" type="1" class="normal type-1" id="section-4.1.3-1">
+<li id="section-4.1.3-1.1">
+              <p id="section-4.1.3-1.1.1"><strong>vCon Received</strong>: The Data Processor validates the vCon's SCITT receipt from the Data Controller.<a href="#section-4.1.3-1.1.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-4.1.3-1.2">
+              <p id="section-4.1.3-1.2.1"><strong>Consent Recorded</strong>: The Data Processor records consent confirmation in the SCITT Transparency Service.<a href="#section-4.1.3-1.2.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-4.1.3-1.3">
+              <p id="section-4.1.3-1.3.1"><strong>vCon Enhanced</strong>: Sentiment analysis and other enhancements are processed through the Data Processor's Conserver workflows.<a href="#section-4.1.3-1.3.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-4.1.3-1.4">
+              <p id="section-4.1.3-1.4.1"><strong>Consent Receipt Sent</strong>: The Data Processor sends notification to the Data Subject(s) with a link to review consent details.<a href="#section-4.1.3-1.4.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-4.1.3-1.5">
+              <p id="section-4.1.3-1.5.1"><strong>Consent Review</strong>: The Data Subject(s) can review vCon information at any time and revoke consent if desired.<a href="#section-4.1.3-1.5.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-4.1.3-1.6">
+              <p id="section-4.1.3-1.6.1"><strong>Data Processor Value-Add</strong>: The Data Processor performs value-added services for the Data Subject(s).<a href="#section-4.1.3-1.6.1" class="pilcrow">¶</a></p>
+</li>
+          </ol>
+</section>
+</div>
+</section>
+</div>
+<div id="revocation-and-the-right-to-be-forgotten">
+<section id="section-4.2">
+        <h3 id="name-revocation-and-the-right-to">
+<a href="#section-4.2" class="section-number selfRef">4.2. </a><a href="#name-revocation-and-the-right-to" class="section-name selfRef">Revocation and the Right to Be Forgotten</a>
+        </h3>
+<p id="section-4.2-1">At any point, a Data Subject can request revocation or the right to be forgotten, requiring all vCon possessors to act accordingly. vCons must be tracked for where they were sent and who to contact when a Data Subject makes such requests. The SCITT Transparency Service maintains metadata about ingested vCons, ensuring integrity and inclusion protection.<a href="#section-4.2-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4.2-2">
+<pre>
+    +-------------------+                      +-------------------+
+    |   Data Subject    |                      |  Data Controller  |
+    +---------+---------+                      +---------+---------+
+              |                                          |
+              | 1. Revoke Consent                        |
+              |--------&gt;                                 |
+              |                                          |
+              | 2. Revoke Request Sent                   |
+              |-----------------------------------------&gt;|
+              |                                          |
+              |                                          | 3. Act on Revocation
+              |                                          |
+              |                                          | 4. Send Request to
+              |                                          |    All Processors
+              |                                          |--------&gt;
+              |                                          |
+    +---------v---------+                      +---------v---------+
+    |   Data Subject    |                      |  Data Controller  |
+    +-------------------+                      +-------------------+
+                                                        |
+                                                        v
+                                               +-------------------+
+                                               |  Data Processor   |
+                                               +---------+---------+
+                                                         |
+                                                         | 5. Deletion of Data
+                                                         |
+                                               +---------v---------+
+                                               |  Data Processor   |
+                                               +-------------------+
+</pre><a href="#section-4.2-2" class="pilcrow">¶</a>
+</div>
+<div id="data-subject">
+<section id="section-4.2.1">
+          <h4 id="name-data-subject">
+<a href="#section-4.2.1" class="section-number selfRef">4.2.1. </a><a href="#name-data-subject" class="section-name selfRef">Data Subject</a>
+          </h4>
+<ol start="1" type="1" class="normal type-1" id="section-4.2.1-1">
+<li id="section-4.2.1-1.1">
+              <p id="section-4.2.1-1.1.1"><strong>Revoke Consent</strong>: The Data Subject revokes consent by some manner: i.e. clicks a link
+included in all communications between the Data Processor and the Data Subject(s), through an external system or in
+conversation with the data controller.<a href="#section-4.2.1-1.1.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-4.2.1-1.2">
+              <p id="section-4.2.1-1.2.1"><strong>Revoke Request Sent</strong>: If the vcon_consent_revoked operation was handled by the Data Processor,
+they MUST contact the Data Controller to communicate the Data Subject's intent.<a href="#section-4.2.1-1.2.1" class="pilcrow">¶</a></p>
 </li>
           </ol>
 </section>
 </div>
 <div id="data-controller-revocation">
-<section id="section-4.1.2">
+<section id="section-4.2.2">
           <h4 id="name-data-controller-revocation">
-<a href="#section-4.1.2" class="section-number selfRef">4.1.2. </a><a href="#name-data-controller-revocation" class="section-name selfRef">Data Controller Revocation</a>
+<a href="#section-4.2.2" class="section-number selfRef">4.2.2. </a><a href="#name-data-controller-revocation" class="section-name selfRef">Data Controller Revocation</a>
           </h4>
-<ol start="1" type="1" class="normal type-1" id="section-4.1.2-1">
-<li id="section-4.1.2-1.1">
-              <p id="section-4.1.2-1.1.1"><strong>Act on Consent Revocation Request</strong>: The Data Controller receives the vCon Consent Revocation Request and records it on their SCITT Transparency Service.<a href="#section-4.1.2-1.1.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-4.2.2-1">
+<li id="section-4.2.2-1.1">
+              <p id="section-4.2.2-1.1.1"><strong>Act on Consent Revocation Request</strong>: The Data Controller receives the vCon Consent Revocation Request and records it on their SCITT Transparency Service.<a href="#section-4.2.2-1.1.1" class="pilcrow">¶</a></p>
 </li>
-            <li id="section-4.1.2-1.2">
-              <p id="section-4.1.2-1.2.1"><strong>Send Revocation Request to Data Controllers</strong>: If the vCon was sent to other Data Processors, they must communicate the revocation request to any Data Processor that hasn't yet acknowledged it.<a href="#section-4.1.2-1.2.1" class="pilcrow">¶</a></p>
+            <li id="section-4.2.2-1.2">
+              <p id="section-4.2.2-1.2.1"><strong>Send Revocation Request to Data Controllers</strong>: If the vCon was sent to other Data
+Processors, they must communicate the revocation request to any Data Processor that hasn't yet acknowledged it.<a href="#section-4.2.2-1.2.1" class="pilcrow">¶</a></p>
 </li>
           </ol>
 </section>
 </div>
 <div id="data-processor-revocation">
-<section id="section-4.1.3">
+<section id="section-4.2.3">
           <h4 id="name-data-processor-revocation">
-<a href="#section-4.1.3" class="section-number selfRef">4.1.3. </a><a href="#name-data-processor-revocation" class="section-name selfRef">Data Processor Revocation</a>
+<a href="#section-4.2.3" class="section-number selfRef">4.2.3. </a><a href="#name-data-processor-revocation" class="section-name selfRef">Data Processor Revocation</a>
           </h4>
-<ol start="1" type="1" class="normal type-1" id="section-4.1.3-1">
-<li id="section-4.1.3-1.1">
-              <p id="section-4.1.3-1.1.1"><strong>Deletion of Data</strong>: Any Data Processor that hasn't yet acted on the request must acknowledge it.<a href="#section-4.1.3-1.1.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-4.2.3-1">
+<li id="section-4.2.3-1.1">
+              <p id="section-4.2.3-1.1.1"><strong>Deletion of Data</strong>: Any Data Processor that hasn't yet acted on the request must acknowledge it.<a href="#section-4.2.3-1.1.1" class="pilcrow">¶</a></p>
 </li>
           </ol>
 </section>
@@ -1772,7 +1928,9 @@ At any point, a Data Subject can request revocation or the right to be forgotten
       <h2 id="name-vcon-lifecycle-events">
 <a href="#section-5" class="section-number selfRef">5. </a><a href="#name-vcon-lifecycle-events" class="section-name selfRef">vCon Lifecycle Events</a>
       </h2>
-<p id="section-5-1">The following events outline important "moments that matter" in a vCon's lifecycle. These events are not intended to be stored within the vCon itself, but rather as operations stored on SCITT to provide context for the vCon's intent at specific points in time:<a href="#section-5-1" class="pilcrow">¶</a></p>
+<p id="section-5-1">The following events outline important "moments that matter" in a vCon's lifecycle.
+These events are not intended to be stored within the vCon itself, but rather as operations
+stored on SCITT to provide context for the vCon's intent at specific points in time:<a href="#section-5-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-5-2.1">
           <p id="section-5-2.1.1"><strong>vcon_created</strong>: The initial vCon document as first recorded. The vCon may start with a basic structure defining minimal metadata, as recordings or attachments may be added asynchronously upon encoding completion.<a href="#section-5-2.1.1" class="pilcrow">¶</a></p>
@@ -1812,8 +1970,13 @@ At any point, a Data Subject can request revocation or the right to be forgotten
       <h2 id="name-security-considerations">
 <a href="#section-6" class="section-number selfRef">6. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
       </h2>
-<p id="section-6-1">The security of the vCon lifecycle depends heavily on the integrity and availability of the SCITT Transparency Service. Entities MUST ensure that their SCITT implementations are properly secured and that access controls are in place to prevent unauthorized modifications.<a href="#section-6-1" class="pilcrow">¶</a></p>
-<p id="section-6-2">The handling of personally identifiable information (PII) throughout the vCon lifecycle requires careful consideration of privacy regulations and data protection requirements. Entities MUST implement appropriate technical and organizational measures to protect PII and ensure compliance with applicable regulations.<a href="#section-6-2" class="pilcrow">¶</a></p>
+<p id="section-6-1">The security of the vCon lifecycle depends heavily on the integrity and availability of the SCITT
+Transparency Service. Entities MUST ensure that their SCITT implementations are properly
+secured and that access controls are in place to prevent unauthorized modifications.<a href="#section-6-1" class="pilcrow">¶</a></p>
+<p id="section-6-2">The handling of personally identifiable information (PII) throughout the vCon lifecycle
+requires careful consideration of privacy regulations and data protection requirements.
+Entities MUST implement appropriate technical and organizational measures to protect PII
+and ensure compliance with applicable regulations.<a href="#section-6-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="privacy-considerations">
@@ -1821,8 +1984,12 @@ At any point, a Data Subject can request revocation or the right to be forgotten
       <h2 id="name-privacy-considerations">
 <a href="#section-7" class="section-number selfRef">7. </a><a href="#name-privacy-considerations" class="section-name selfRef">Privacy Considerations</a>
       </h2>
-<p id="section-7-1">This document describes a framework for managing vCons that contain personally identifiable information. Implementers MUST ensure compliance with applicable privacy regulations, including but not limited to GDPR <a href="https://gdpr.eu/">GDPR</a> and CCPA <a href="https://oag.ca.gov/privacy/ccpa">CCPA</a>.<a href="#section-7-1" class="pilcrow">¶</a></p>
-<p id="section-7-2">The framework provides mechanisms for consent management and data subject rights, but implementers are responsible for ensuring that their implementations properly respect and enforce these rights.<a href="#section-7-2" class="pilcrow">¶</a></p>
+<p id="section-7-1">This document describes a framework for managing vCons that contain personally identifiable
+information. Implementers MUST ensure compliance with applicable privacy regulations,
+including but not limited to GDPR <a href="https://gdpr.eu/">GDPR</a> and CCPA <a href="https://oag.ca.gov/privacy/ccpa">CCPA</a>.<a href="#section-7-1" class="pilcrow">¶</a></p>
+<p id="section-7-2">The framework provides mechanisms for consent management and data subject rights,
+but implementers are responsible for ensuring that their implementations properly
+respect and enforce these rights.<a href="#section-7-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="iana-considerations">
@@ -1971,8 +2138,23 @@ At any point, a Data Subject can request revocation or the right to be forgotten
 </dl>
 </section>
 </div>
-<div id="authors-addresses">
+<div id="acknowledgments">
 <section id="appendix-A">
+      <h2 id="name-acknowledgments">
+<a href="#appendix-A" class="section-number selfRef">Appendix A. </a><a href="#name-acknowledgments" class="section-name selfRef">Acknowledgments</a>
+      </h2>
+<ul class="normal">
+<li class="normal" id="appendix-A-1.1">
+          <p id="appendix-A-1.1.1">Thank you to Allistair Woodman for connecting the first dots between VCon and SCITT<a href="#appendix-A-1.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="appendix-A-1.2">
+          <p id="appendix-A-1.2.1">Thank you to Jeff Pulver and Cody Launius for their collaboration and support<a href="#appendix-A-1.2.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+</section>
+</div>
+<div id="authors-addresses">
+<section id="appendix-B">
       <h2 id="name-authors-addresses">
 <a href="#name-authors-addresses" class="section-name selfRef">Authors' Addresses</a>
       </h2>
@@ -1986,10 +2168,19 @@ At any point, a Data Subject can request revocation or the right to be forgotten
 </address>
 <address class="vcard">
         <div dir="auto" class="left"><span class="fn nameRole">S. Lasker</span></div>
+<div dir="auto" class="left"><span class="org">Independent</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:stevenlasker@hotmail.com" class="email">stevenlasker@hotmail.com</a>
+</div>
 </address>
 <address class="vcard">
         <div dir="auto" class="left"><span class="fn nameRole">Diana James</span></div>
 <div dir="auto" class="left"><span class="org">Marashlian &amp; Donahue, PLLC</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:daj@commlawgroup.com" class="email">daj@commlawgroup.com</a>
+</div>
 </address>
 </section>
 </div>
