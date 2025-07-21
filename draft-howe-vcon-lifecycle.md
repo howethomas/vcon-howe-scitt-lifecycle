@@ -686,5 +686,5 @@ This document has no IANA actions.
 
 {:numbered="false"}
 
-- Thank you to Allistair Woodman for connecting the first dots between VCon and SCITT
-- Thank you to Jeff Pulver and Cody Launius for their collaboration and support
+* Thank you to Allistair Woodman for connecting the first dots between VCon and SCITT
+* Thank you to Jeff Pulver and Cody Launius for their collaboration and support
