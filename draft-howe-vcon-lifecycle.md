@@ -189,7 +189,7 @@ By combining vCons with SCITT, organizations can build scalable, transparent gov
 These relying parties can then use this information to make decisions
 based on the current state and context of the vCon to account for changes
 in consent, updates in the accuracy of the content, or amendments of the
-information it might contain. 
+information it might contain.
 SCITT, the Supply Chain, Integrity, Transparency, and Trust protocol,
 enables clients to register statements about events, physical or virtual,
 such as when things are created or used.
@@ -204,7 +204,7 @@ governance across security boundaries is common and desired by all
 parties.  One real-world example of this is management of consent as
 it applies to the use of conversations for different purposes,
 such as machine learning.  Using conversations as inputs to machine
-learning has great benefit to both customers and businesses, yet only 
+learning has great benefit to both customers and businesses, yet only
 responsibly within the defense of
 personal data rights and compliance with personal data and
 communications privacy laws, united together
@@ -303,7 +303,7 @@ processing and enhancements. A conserver doesn't store a vCon, rather it process
 the vCon for transcription, sentiment, integrity protection on egress, verification
 on ingress, retrieving it from, and saving it to a vCon Registry.
 
-**Data Subject**: The individual(s) whose personal information is processed 
+**Data Subject**: The individual(s) whose personal information is processed
 (also referred to as the "consumer" in many personal data privacy laws).
 
 **Data Originator**: The Entity that records and initiates the vCon,
@@ -329,7 +329,7 @@ responsibility to identify.
 authority over data processing who determines the purposes and
 methods of data processing, bears primary responsibility under
 privacy laws and is the main target of most privacy and data
-protection regulations. Under most data privacy laws, Data Controllers 
+protection regulations. Under most data privacy laws, Data Controllers
 are required to enter into data processing agreements with their Data Processors, detailing the rules for data collection and processing in accordance with applicable laws.
 
 
@@ -641,8 +641,8 @@ stored on SCITT to provide context for the vCon's intent at specific points in t
 
 # Security Considerations
 
-The security of the vCon lifecycle depends heavily on the integrity and availability of the SCITT 
-Transparency Service. Entities MUST ensure that their SCITT implementations are properly 
+The security of the vCon lifecycle depends heavily on the integrity and availability of the SCITT
+Transparency Service. Entities MUST ensure that their SCITT implementations are properly
 secured and that access controls are in place to prevent unauthorized modifications.
 
 The handling of personally identifiable information (PII) throughout the vCon lifecycle
@@ -683,8 +683,6 @@ This document has no IANA actions.
 --- back
 
 # Acknowledgments
-
-{:numbered="false"}
 
 * Thank you to Allistair Woodman for connecting the first dots between VCon and SCITT
 * Thank you to Jeff Pulver and Cody Launius for their collaboration and support
