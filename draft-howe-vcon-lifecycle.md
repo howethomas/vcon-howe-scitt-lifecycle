@@ -44,6 +44,7 @@ author:
   email: thomas.howe@strolid.com
 -
   fullname: S. Lasker
+  organization: Independent
   email: stevenlasker@hotmail.com
 -
   fullname: Diana James
@@ -189,8 +190,10 @@ These relying parties can then use this information to make decisions
 based on the current state and context of the vCon to account for changes
 in consent, updates in the accuracy of the content, or amendments of the
 information it might contain. 
-SCITT, the Supply Chain, Integrity, Transparency, and Trust protocol, enables clients to register statements about events, physical or virtual, such as when things are created or used.
-These statements are immutable and are useful to support auditing, 
+SCITT, the Supply Chain, Integrity, Transparency, and Trust protocol,
+enables clients to register statements about events, physical or virtual,
+such as when things are created or used.
+These statements are immutable and are useful to support auditing,
 governance, and coordination between various distributed systems.
 
 When using vCons to define a conversation, and SCITT to record the
@@ -212,14 +215,15 @@ principles, multijurisdictional business operations, and the ever-changing
 privacy laws. Please see the [privacy-primer-vcon] for more information on
 consent and other data subject protection concepts.
 
-In all of these cases, the ability to define and express the processing of conversations depends on the ability to authoritatively define the lifecycle of a vCon:
+In all of these cases, the ability to define and express the processing of
+conversations depends on the ability to authoritatively define the lifecycle of a vCon:
 
-* who originated the vCon in the first place to establish provenance
-* how it was analyzed and amended, to accurately respond to right-to-know requests
-* the authenticity both of the original document for downstream workflow
-* and authenticity of the redactions that come from the original, in service of data minimization efforts
-* the various expressions of digital rights
-* the sharing or deletion in response to the same digital rights
+- who originated the vCon in the first place to establish provenance
+- how it was analyzed and amended, to accurately respond to right-to-know requests
+- the authenticity both of the original document for downstream workflow
+- and authenticity of the redactions that come from the original, in service of data minimization efforts
+- the various expressions of digital rights
+- the sharing or deletion in response to the same digital rights
 
 For this document and for purposes of illustration, consent will be used as an example use case.
 Proper consent management is fundamental to the responsible protection of data and the ability
@@ -675,3 +679,12 @@ This document has no IANA actions.
 [GDPR]: https://gdpr.eu/
 [HIPAA]: https://www.hhs.gov/hipaa/index.html
 [privacy-primer-vcon]: https://datatracker.ietf.org/doc/draft-james-privacy-primer-vcon/
+
+--- back
+
+# Acknowledgments
+
+{:numbered="false"}
+
+- Thank you to Allistair Woodman for connecting the first dots between VCon and SCITT
+- Thank you to Jeff Pulver and Cody Launius for their collaboration and support
