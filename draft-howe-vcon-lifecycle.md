@@ -2,7 +2,7 @@
 
 title: "vCon Lifecycle Management using SCITT"
 abbrev: "vCon Lifecycle"
-category: info
+category: std
 
 docname: draft-howe-vcon-lifecycle-latest
 submissiontype: IETF  # also: "independent", "editorial", "IAB", or "IRTF"
@@ -14,6 +14,8 @@ area: art
 workgroup: vcon
 keyword:
 
+- data privacy
+- data subject rights
 - conversation
 - vcon
 - CDR
